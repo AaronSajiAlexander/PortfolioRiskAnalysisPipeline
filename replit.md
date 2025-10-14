@@ -49,21 +49,143 @@ Preferred communication style: Simple, everyday language.
 - **Web Framework**: Streamlit for interactive UI
 
 ### Machine Learning Analysis
-- **Anomaly Detection (Isolation Forest)**: 
-  - Identifies unusual asset behavior patterns
-  - Contamination rate: 15% (expects ~15% anomalies)
-  - Anomaly scores: 0-100 scale (higher = more anomalous)
-  - Severity levels: LOW, MEDIUM, HIGH, CRITICAL
-  - Edge case handling: Guards against division by zero when all scores are identical
-- **Risk Prediction (Random Forest Classifier)**:
-  - Predicts future risk ratings (GREEN, YELLOW, RED)
-  - Model accuracy typically 80-90%
-  - Provides prediction confidence and trend analysis (IMPROVING, DETERIORATING, STABLE)
-  - Dynamically handles portfolios with 2 or 3 risk classes
-  - Includes feature importance ranking to identify key risk drivers
-- **Bug Fixes Applied**:
-  - Division by zero protection in anomaly score normalization
-  - Index bounds handling for portfolios with fewer than 3 risk classes
+
+#### Stage 2.5: ML Analysis Pipeline
+
+The ML analysis engine (`pipeline/ml_analysis.py`) implements two complementary machine learning techniques to enhance portfolio risk assessment:
+
+##### 1. Anomaly Detection using Isolation Forest
+
+**Purpose**: Identifies assets exhibiting unusual behavioral patterns that deviate from typical portfolio behavior.
+
+**Algorithm**: Isolation Forest
+- **How it works**: Constructs random decision trees that isolate observations. Anomalies require fewer splits to isolate, resulting in shorter path lengths.
+- **Contamination rate**: 0.15 (15%) - expects approximately 15% of assets to be anomalous
+- **Input features**: Volatility, maximum drawdown, Sharpe ratio, volume volatility, RSI
+- **Random state**: 42 (for reproducibility)
+
+**Output Metrics**:
+- **Anomaly Score**: Normalized 0-100 scale (higher = more anomalous)
+  - Raw scores from Isolation Forest are normalized using: `(score - min) / (max - min) * 100`
+  - Edge case: If all scores identical (max == min), defaults to 30.0 to prevent division by zero
+- **Severity Classification**:
+  - LOW: Score < 40 (minor deviations)
+  - MEDIUM: 40 ≤ Score < 60 (moderate anomalies)
+  - HIGH: 60 ≤ Score < 80 (significant anomalies)
+  - CRITICAL: Score ≥ 80 (extreme anomalies requiring immediate attention)
+- **Contributing Factors**: Top 3 metrics driving anomaly score for each asset
+
+**Use Cases**:
+- Detect hidden risks not captured by traditional volatility metrics
+- Identify assets with unusual correlation patterns
+- Flag potential data quality issues or market anomalies
+
+##### 2. Risk Rating Prediction using Random Forest Classifier
+
+**Purpose**: Predicts future risk ratings and identifies key risk drivers through supervised learning.
+
+**Algorithm**: Random Forest Classifier
+- **How it works**: Ensemble of 100 decision trees that vote on risk classification
+- **Input features**: Volatility, maximum drawdown, Sharpe ratio, volume volatility, RSI
+- **Target variable**: Current risk rating (GREEN, YELLOW, RED)
+- **Train-test split**: 80% training, 20% testing with stratified sampling
+- **Random state**: 42 (for reproducibility)
+
+**Model Training Process**:
+1. Extracts feature matrix (X) and target labels (y) from portfolio data
+2. Splits data using stratified sampling to maintain class distribution
+3. Trains Random Forest on training set
+4. Evaluates accuracy on test set
+5. Dynamically adapts to number of risk classes present (2 or 3 classes)
+
+**Output Metrics**:
+- **Model Accuracy**: Percentage of correct predictions on test set (typically 80-90%)
+- **Predicted Risk Rating**: GREEN, YELLOW, or RED classification
+- **Prediction Confidence**: Probability score (0-100%) for the predicted class
+- **Risk Trend Analysis**:
+  - IMPROVING: Predicted rating better than current (e.g., RED → YELLOW)
+  - DETERIORATING: Predicted rating worse than current (e.g., GREEN → YELLOW)
+  - STABLE: Predicted rating matches current rating
+- **Feature Importance**: Ranked list of metrics by predictive power
+  - Shows which metrics (volatility, drawdown, etc.) most influence risk ratings
+  - Useful for understanding portfolio risk drivers
+
+**Edge Case Handling**:
+- **Insufficient samples**: Requires minimum samples for train-test split
+- **Limited risk classes**: Dynamically handles portfolios with only 2 risk classes (e.g., only GREEN and RED assets, no YELLOW)
+  - Uses `model.classes_` to identify actual classes present
+  - Prevents index out of bounds errors when accessing prediction probabilities
+- **Class imbalance**: Stratified sampling maintains representative class distribution
+
+##### Integration in Pipeline
+
+**Execution Flow**:
+1. Receives analyzed portfolio data from Stage 2 (Core Analysis)
+2. Extracts ML features: volatility, max_drawdown, sharpe_ratio, volume_volatility, RSI
+3. Runs Isolation Forest for anomaly detection
+4. Trains Random Forest classifier for risk prediction
+5. Generates ML insights payload with all results
+6. Updates progress (50% → 70%)
+7. Passes enriched data to Stage 3 (Sentiment Analysis)
+
+**Data Structure Output**:
+```python
+{
+    'anomaly_detection': {
+        'total_anomalies': int,
+        'critical_count': int,
+        'high_count': int,
+        'results': [
+            {
+                'ticker': str,
+                'score': float,
+                'severity': str,
+                'top_factors': [str, str, str]
+            }
+        ]
+    },
+    'risk_prediction': {
+        'model_accuracy': float,
+        'predictions': [
+            {
+                'ticker': str,
+                'current_rating': str,
+                'predicted_rating': str,
+                'confidence': float,
+                'trend': str
+            }
+        ],
+        'feature_importance': [
+            {'feature': str, 'importance': float}
+        ]
+    }
+}
+```
+
+##### Performance Considerations
+
+- **Computation time**: ~1-3 seconds for portfolios of 10-100 assets
+- **Memory usage**: Minimal (operates on feature matrices)
+- **Scalability**: Linear with portfolio size
+
+##### Known Limitations
+
+1. **Training data dependency**: Model accuracy depends on portfolio diversity
+2. **Historical bias**: Predictions based on current portfolio characteristics only
+3. **Class imbalance**: Very small portfolios may have insufficient samples for robust training
+4. **Feature engineering**: Uses only 5 core metrics; additional features could improve accuracy
+
+##### Bug Fixes & Safeguards
+
+1. **Division by Zero Protection** (Line ~150):
+   - Issue: When all anomaly scores identical, normalization fails
+   - Fix: Check if `max_score == min_score`, default to 30.0
+   - Impact: Prevents NaN propagation in severity calculations
+
+2. **Index Out of Bounds Protection** (Line ~225):
+   - Issue: Accessing `prediction_proba[:, 2]` fails when only 2 risk classes exist
+   - Fix: Use `model.classes_` to get actual number of classes, access indices dynamically
+   - Impact: Handles portfolios with GREEN+YELLOW, GREEN+RED, or YELLOW+RED combinations
 
 ## External Dependencies
 
