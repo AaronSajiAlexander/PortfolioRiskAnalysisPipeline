@@ -441,7 +441,7 @@ class ReportGenerator:
             if risk_flags:
                 flags_text = f"""
                 <b>Risk Flags:</b><br/>
-                • {', '.join(risk_flags.replace('_', ' ').title() for flag in risk_flags)}<br/>
+                • {', '.join(flag.replace('_', ' ').title() for flag in risk_flags)}<br/>
                 """
                 story.append(Paragraph(flags_text, self.styles['Normal']))
             
