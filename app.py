@@ -9,6 +9,7 @@ import time
 # Import pipeline modules
 from pipeline.data_ingestion import DataIngestionEngine
 from pipeline.core_analysis import CoreAnalysisEngine
+from pipeline.ml_analysis import MLAnalysisEngine
 from pipeline.sentiment_analysis import SentimentAnalysisEngine
 from pipeline.report_generator import ReportGenerator
 
@@ -93,29 +94,40 @@ def execute_full_pipeline(portfolio_size):
         analysis_engine = CoreAnalysisEngine()
         analysis_results = analysis_engine.analyze_portfolio(portfolio_data)
         
-        progress_bar.progress(60)
+        progress_bar.progress(50)
         red_flags = len([a for a in analysis_results if a['risk_rating'] == 'RED'])
         yellow_flags = len([a for a in analysis_results if a['risk_rating'] == 'YELLOW'])
         st.success(f"✅ Stage 2 Complete: {red_flags} RED flags, {yellow_flags} YELLOW flags")
         
+        # Stage 2.5: ML Analysis
+        status_text.text("Stage 2.5: Running ML analysis (Anomaly Detection & Risk Prediction)...")
+        progress_bar.progress(60)
+        
+        ml_engine = MLAnalysisEngine()
+        ml_results = ml_engine.analyze_portfolio_ml(analysis_results)
+        
+        progress_bar.progress(70)
+        anomaly_count = ml_results['ml_summary']['anomaly_summary']['total_anomalies']
+        st.success(f"✅ Stage 2.5 Complete: {anomaly_count} anomalies detected, ML model trained")
+        
         # Stage 3: Sentiment Analysis
         status_text.text("Stage 3: Analyzing sentiment for flagged assets...")
-        progress_bar.progress(75)
+        progress_bar.progress(80)
         
         sentiment_engine = SentimentAnalysisEngine()
         red_flagged_assets = [a for a in analysis_results if a['risk_rating'] == 'RED']
         sentiment_results = sentiment_engine.analyze_sentiment(red_flagged_assets)
         
-        progress_bar.progress(85)
+        progress_bar.progress(90)
         st.success(f"✅ Stage 3 Complete: Sentiment analysis for {len(sentiment_results)} RED-flagged assets")
         
         # Stage 4: Report Generation
-        status_text.text("Stage 4: Generating PDF report...")
+        status_text.text("Stage 4: Generating PDF report with ML insights...")
         progress_bar.progress(95)
         
         report_generator = ReportGenerator()
         pdf_path = report_generator.generate_report(
-            portfolio_data, analysis_results, sentiment_results
+            portfolio_data, analysis_results, sentiment_results, ml_results
         )
         
         progress_bar.progress(100)
@@ -126,6 +138,7 @@ def execute_full_pipeline(portfolio_size):
         st.session_state.pipeline_results = {
             'portfolio_data': portfolio_data,
             'analysis_results': analysis_results,
+            'ml_results': ml_results,
             'sentiment_results': sentiment_results,
             'pdf_path': pdf_path,
             'red_flags': red_flags,
@@ -290,7 +303,7 @@ def display_pipeline_results():
         st.metric("⏱️ Execution Time", f"{st.session_state.execution_time:.2f}s")
     
     # Tabs for detailed results
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Portfolio Overview", "⚠️ Risk Analysis", "📰 Sentiment", "📄 Report"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Portfolio Overview", "⚠️ Risk Analysis", "🤖 ML Analysis", "📰 Sentiment", "📄 Report"])
     
     with tab1:
         st.subheader("Portfolio Data")
@@ -307,6 +320,50 @@ def display_pipeline_results():
         st.bar_chart(risk_counts)
     
     with tab3:
+        st.subheader("Machine Learning Analysis")
+        if 'ml_results' in results and results['ml_results']:
+            ml_data = results['ml_results']
+            
+            # ML Summary
+            st.markdown("#### ML Analysis Summary")
+            summary = ml_data['ml_summary']
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Anomalies", summary['anomaly_summary']['total_anomalies'])
+            with col2:
+                st.metric("Critical Anomalies", summary['anomaly_summary']['critical_anomalies'])
+            with col3:
+                if summary['prediction_summary']['model_trained']:
+                    st.metric("Model Accuracy", f"{summary['prediction_summary']['model_accuracy']}%")
+                else:
+                    st.metric("Model Status", "Not Trained")
+            
+            # Key Insights
+            st.markdown("#### Key ML Insights")
+            for insight in summary['key_insights']:
+                st.info(f"• {insight}")
+            
+            # Anomaly Detection Results
+            st.markdown("#### Anomaly Detection Results")
+            anomaly_df = pd.DataFrame(ml_data['anomaly_detection'])
+            st.dataframe(anomaly_df[['symbol', 'sector', 'anomaly_score', 'severity', 'is_anomaly', 'recommendation']], use_container_width=True)
+            
+            # Risk Predictions
+            if ml_data['risk_prediction'].get('model_trained'):
+                st.markdown("#### Risk Rating Predictions")
+                pred_df = pd.DataFrame(ml_data['risk_prediction']['predictions'])
+                st.dataframe(pred_df[['symbol', 'current_rating', 'predicted_rating', 'confidence', 'trend']], use_container_width=True)
+            
+            # Feature Importance
+            if ml_data['feature_importance']:
+                st.markdown("#### Feature Importance (Risk Drivers)")
+                importance_df = pd.DataFrame(ml_data['feature_importance'])
+                st.bar_chart(importance_df.set_index('feature')['importance'])
+        else:
+            st.info("ML analysis not available")
+    
+    with tab4:
         st.subheader("Sentiment Analysis")
         if results['sentiment_results']:
             sentiment_df = pd.DataFrame(results['sentiment_results'])
@@ -314,7 +371,7 @@ def display_pipeline_results():
         else:
             st.info("No RED-flagged assets required sentiment analysis")
     
-    with tab4:
+    with tab5:
         st.subheader("Generated Report")
         if os.path.exists(results['pdf_path']):
             st.success("PDF report ready for download")

@@ -77,7 +77,7 @@ class ReportGenerator:
         return custom_styles
     
     def generate_report(self, portfolio_data: List[Dict], analysis_results: List[Dict], 
-                       sentiment_results: List[Dict]) -> str:
+                       sentiment_results: List[Dict], ml_results: Dict = None) -> str:
         """
         Generate comprehensive PDF report
         
@@ -85,6 +85,7 @@ class ReportGenerator:
             portfolio_data: Original portfolio data
             analysis_results: Risk analysis results
             sentiment_results: Sentiment analysis results
+            ml_results: Machine learning analysis results (optional)
             
         Returns:
             Path to generated PDF report
@@ -111,6 +112,10 @@ class ReportGenerator:
         
         # Risk analysis section
         story.extend(self.create_risk_analysis_section(analysis_results))
+        
+        # ML analysis section
+        if ml_results:
+            story.extend(self.create_ml_analysis_section(ml_results))
         
         # Sentiment analysis section
         if sentiment_results:
@@ -386,6 +391,128 @@ class ReportGenerator:
         story.append(sentiment_table)
         story.append(Spacer(1, 20))
         
+        return story
+    
+    def create_ml_analysis_section(self, ml_results: Dict) -> List:
+        """Create machine learning analysis section"""
+        story = []
+        
+        story.append(Paragraph("Machine Learning Analysis", self.custom_styles['SectionHeader']))
+        
+        ml_summary = ml_results['ml_summary']
+        
+        # ML Overview
+        ml_text = f"""
+        Advanced machine learning techniques were applied to identify anomalies and predict future risk ratings.
+        
+        <b>Anomaly Detection Summary:</b><br/>
+        • Total Anomalies Detected: {ml_summary['anomaly_summary']['total_anomalies']}<br/>
+        • Critical Anomalies: {ml_summary['anomaly_summary']['critical_anomalies']}<br/>
+        • High Risk Anomalies: {ml_summary['anomaly_summary']['high_anomalies']}<br/>
+        • Anomaly Rate: {ml_summary['anomaly_summary']['anomaly_rate']}%<br/>
+        """
+        
+        if ml_summary['prediction_summary']['model_trained']:
+            ml_text += f"""
+            
+            <b>Risk Prediction Model:</b><br/>
+            • Model Accuracy: {ml_summary['prediction_summary']['model_accuracy']}%<br/>
+            • Rating Changes Predicted: {ml_summary['prediction_summary']['rating_changes_predicted']}<br/>
+            • Assets Predicted to Deteriorate: {ml_summary['prediction_summary']['deteriorating_assets']}<br/>
+            • Assets Predicted to Improve: {ml_summary['prediction_summary']['improving_assets']}<br/>
+            """
+        
+        story.append(Paragraph(ml_text, self.styles['Normal']))
+        story.append(Spacer(1, 15))
+        
+        # Key ML Insights
+        if ml_summary['key_insights']:
+            story.append(Paragraph("Key Machine Learning Insights", self.custom_styles['SubsectionHeader']))
+            insights_text = "<br/>".join([f"• {insight}" for insight in ml_summary['key_insights']])
+            story.append(Paragraph(insights_text, self.styles['Normal']))
+            story.append(Spacer(1, 15))
+        
+        # Anomaly Detection Results Table
+        anomaly_results = ml_results['anomaly_detection']
+        critical_anomalies = [a for a in anomaly_results if a['severity'] in ['CRITICAL', 'HIGH']]
+        
+        if critical_anomalies:
+            story.append(Paragraph("Critical Anomalies Detected", self.custom_styles['SubsectionHeader']))
+            
+            anomaly_table_data = [['Symbol', 'Sector', 'Anomaly Score', 'Severity', 'Recommendation']]
+            
+            for anomaly in sorted(critical_anomalies, key=lambda x: x['anomaly_score'], reverse=True)[:10]:
+                anomaly_table_data.append([
+                    anomaly['symbol'],
+                    anomaly['sector'],
+                    f"{anomaly['anomaly_score']:.1f}",
+                    anomaly['severity'],
+                    anomaly['recommendation'][:40] + '...' if len(anomaly['recommendation']) > 40 else anomaly['recommendation']
+                ])
+            
+            anomaly_table = Table(anomaly_table_data, colWidths=[60, 80, 70, 60, 180])
+            anomaly_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 1), (-1, -1), 8)
+            ]))
+            
+            story.append(anomaly_table)
+            story.append(Spacer(1, 15))
+        
+        # Risk Predictions Table
+        if ml_results['risk_prediction'].get('model_trained'):
+            predictions = ml_results['risk_prediction']['predictions']
+            rating_changes = [p for p in predictions if p['rating_change']]
+            
+            if rating_changes:
+                story.append(Paragraph("Predicted Risk Rating Changes", self.custom_styles['SubsectionHeader']))
+                
+                pred_table_data = [['Symbol', 'Current Rating', 'Predicted Rating', 'Confidence', 'Trend']]
+                
+                for pred in sorted(rating_changes, key=lambda x: x['confidence'], reverse=True)[:10]:
+                    pred_table_data.append([
+                        pred['symbol'],
+                        pred['current_rating'],
+                        pred['predicted_rating'],
+                        f"{pred['confidence']:.1f}%",
+                        pred['trend']
+                    ])
+                
+                pred_table = Table(pred_table_data)
+                pred_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                ]))
+                
+                story.append(pred_table)
+                story.append(Spacer(1, 15))
+        
+        # Feature Importance
+        if ml_results['feature_importance']:
+            story.append(Paragraph("Top Risk Factors (Feature Importance)", self.custom_styles['SubsectionHeader']))
+            
+            top_features = ml_results['feature_importance'][:5]
+            features_text = "<br/>".join([
+                f"{i+1}. {f['feature']}: {f['importance']:.1f}% importance" 
+                for i, f in enumerate(top_features)
+            ])
+            story.append(Paragraph(features_text, self.styles['Normal']))
+            story.append(Spacer(1, 15))
+        
+        story.append(Spacer(1, 20))
         return story
     
     def create_detailed_analysis_section(self, analysis_results: List[Dict], 
