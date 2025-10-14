@@ -64,3 +64,50 @@ Preferred communication style: Simple, everyday language.
 
 ### File System Dependencies
 - Requires write access to `/reports` and `/charts` directories.
+## ML Validation System
+
+To ensure ML results are accurate and reliable, an automated validation system runs after ML analysis completes.
+
+### Validation Checks
+
+**1. Anomaly Detection Validation**:
+- Score range check: Validates all anomaly scores are 0-100
+- Severity consistency: Confirms severity matches score thresholds (CRITICAL ≥80, HIGH ≥60, MEDIUM ≥40, LOW <40)
+- Anomaly rate verification: Checks rate is reasonable (~15% expected, warns if >30% or <5%)
+- Critical anomaly validation: Ensures critical anomalies have scores ≥80
+
+**2. Risk Prediction Validation**:
+- Confidence score validation: Verifies all confidence scores are 0-100%
+- Model accuracy check: Flags if accuracy <50% (too low) or >99% (possible overfitting)
+- Trend consistency: Validates trend direction matches rating changes
+- Probability validation: Ensures risk probabilities sum to ~100%
+
+**3. Feature Quality Validation**:
+- NaN detection: Identifies missing values in features
+- Infinite value check: Detects infinite values that could break models
+- Variance analysis: Warns about features with very low variance (<0.0001)
+
+**4. Feature Importance Validation**:
+- Sum validation: Checks that importance scores sum to ~100%
+- Negative value check: Ensures no negative importance values
+- Dominance detection: Warns if single feature >60% importance
+
+### Validation Status Levels
+
+- **PASS**: All validation checks successful, results are reliable
+- **WARNING**: Minor issues detected, results usable but review recommended
+- **FAIL**: Critical issues found, results may be unreliable
+
+### Output
+
+- Overall validation status (PASS/WARNING/FAIL)
+- Detailed check results with metrics
+- List of warnings and issues detected
+- Displayed in UI (ML Analysis tab) and PDF report
+
+### Example Validation Scenarios
+
+- Detects potential overfitting when model accuracy reaches 100%
+- Identifies data quality issues (NaN values, infinite values)
+- Catches inconsistencies in trend analysis
+- Validates severity classifications are correct
