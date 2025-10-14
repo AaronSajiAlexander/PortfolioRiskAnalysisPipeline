@@ -512,6 +512,38 @@ class ReportGenerator:
             story.append(Paragraph(features_text, self.styles['Normal']))
             story.append(Spacer(1, 15))
         
+        # Validation Results
+        if 'validation' in ml_results:
+            story.append(Paragraph("ML Validation Results", self.custom_styles['SubsectionHeader']))
+            validation = ml_results['validation']
+            
+            # Overall validation status
+            status_color = 'green' if validation['overall_status'] == 'PASS' else 'orange' if validation['overall_status'] == 'WARNING' else 'red'
+            validation_text = f"""
+            <b>Overall Validation Status:</b> <font color="{status_color}">{validation['overall_status']}</font><br/>
+            <b>Checks Passed:</b> {validation['passed_checks']} / {validation['total_checks']}<br/>
+            """
+            
+            # Add validation check summaries
+            for check in validation['validation_checks']:
+                check_status = '✓' if check['status'] == 'PASS' else '⚠' if check['status'] == 'WARNING' else '✗'
+                validation_text += f"<br/><b>{check_status} {check['check_name']}:</b> {check['status']}"
+                
+                if check['metrics']:
+                    metrics_str = ', '.join([f"{k}: {v}" for k, v in list(check['metrics'].items())[:3]])
+                    validation_text += f"<br/>  {metrics_str}"
+            
+            # Add warnings if any
+            if validation['warnings']:
+                validation_text += f"<br/><br/><b>Validation Warnings ({len(validation['warnings'])}):</b><br/>"
+                for i, warning in enumerate(validation['warnings'][:5], 1):
+                    validation_text += f"{i}. {warning}<br/>"
+                if len(validation['warnings']) > 5:
+                    validation_text += f"... and {len(validation['warnings']) - 5} more warnings<br/>"
+            
+            story.append(Paragraph(validation_text, self.styles['Normal']))
+            story.append(Spacer(1, 15))
+        
         story.append(Spacer(1, 20))
         return story
     

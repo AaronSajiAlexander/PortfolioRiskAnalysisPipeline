@@ -344,6 +344,38 @@ def display_pipeline_results():
             for insight in summary['key_insights']:
                 st.info(f"• {insight}")
             
+            # Validation Results
+            if 'validation' in ml_data:
+                st.markdown("#### ML Validation Results")
+                validation = ml_data['validation']
+                
+                # Overall status
+                if validation['overall_status'] == 'PASS':
+                    st.success(f"✅ All validation checks passed ({validation['passed_checks']}/{validation['total_checks']})")
+                elif validation['overall_status'] == 'WARNING':
+                    st.warning(f"⚠️ Validation completed with warnings ({validation['passed_checks']}/{validation['total_checks']} passed)")
+                else:
+                    st.error(f"❌ Validation failed ({validation['passed_checks']}/{validation['total_checks']} passed)")
+                
+                # Validation checks details
+                with st.expander("View Detailed Validation Checks"):
+                    for check in validation['validation_checks']:
+                        status_icon = "✅" if check['status'] == 'PASS' else "⚠️" if check['status'] == 'WARNING' else "❌"
+                        st.markdown(f"**{status_icon} {check['check_name']}** - {check['status']}")
+                        
+                        if check['metrics']:
+                            st.json(check['metrics'])
+                        
+                        if check['issues']:
+                            for issue in check['issues']:
+                                st.warning(f"  • {issue}")
+                
+                # Display warnings if any
+                if validation['warnings']:
+                    with st.expander(f"⚠️ {len(validation['warnings'])} Validation Warnings"):
+                        for warning in validation['warnings']:
+                            st.text(f"• {warning}")
+            
             # Anomaly Detection Results
             st.markdown("#### Anomaly Detection Results")
             anomaly_df = pd.DataFrame(ml_data['anomaly_detection'])

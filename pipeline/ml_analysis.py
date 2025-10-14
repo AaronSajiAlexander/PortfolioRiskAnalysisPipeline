@@ -50,11 +50,17 @@ class MLAnalysisEngine:
             anomaly_results, risk_prediction_results, feature_importance
         )
         
+        # Validate ML results
+        validation_results = self._validate_ml_results(
+            anomaly_results, risk_prediction_results, feature_importance, features_df
+        )
+        
         return {
             'anomaly_detection': anomaly_results,
             'risk_prediction': risk_prediction_results,
             'feature_importance': feature_importance,
             'ml_summary': ml_summary,
+            'validation': validation_results,
             'analysis_timestamp': datetime.now().isoformat()
         }
     
@@ -445,3 +451,259 @@ class MLAnalysisEngine:
             insights.append("Portfolio shows stable risk patterns with no critical ML alerts")
         
         return insights
+    
+    def _validate_ml_results(self, anomaly_results: List[Dict], 
+                            risk_predictions: Dict, 
+                            feature_importance: List[Dict],
+                            features_df: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Validate ML results for quality and consistency
+        
+        Args:
+            anomaly_results: Anomaly detection results
+            risk_predictions: Risk prediction results
+            feature_importance: Feature importance scores
+            features_df: Feature DataFrame
+            
+        Returns:
+            Validation results with checks and warnings
+        """
+        validation_checks = []
+        warnings = []
+        overall_status = 'PASS'
+        
+        # 1. Validate Anomaly Detection Results
+        anomaly_check = self._validate_anomaly_detection(anomaly_results)
+        validation_checks.append(anomaly_check)
+        if anomaly_check['status'] == 'WARNING':
+            warnings.extend(anomaly_check['issues'])
+        if anomaly_check['status'] == 'FAIL':
+            overall_status = 'FAIL'
+        
+        # 2. Validate Risk Prediction Results
+        prediction_check = self._validate_risk_predictions(risk_predictions)
+        validation_checks.append(prediction_check)
+        if prediction_check['status'] == 'WARNING':
+            warnings.extend(prediction_check['issues'])
+        if prediction_check['status'] == 'FAIL':
+            overall_status = 'FAIL'
+        
+        # 3. Validate Feature Quality
+        feature_check = self._validate_feature_quality(features_df)
+        validation_checks.append(feature_check)
+        if feature_check['status'] == 'WARNING':
+            warnings.extend(feature_check['issues'])
+        if feature_check['status'] == 'FAIL':
+            overall_status = 'FAIL'
+        
+        # 4. Validate Feature Importance
+        importance_check = self._validate_feature_importance(feature_importance)
+        validation_checks.append(importance_check)
+        if importance_check['status'] == 'WARNING':
+            warnings.extend(importance_check['issues'])
+        
+        # Set overall status based on checks
+        if overall_status != 'FAIL' and warnings:
+            overall_status = 'WARNING'
+        
+        return {
+            'overall_status': overall_status,
+            'validation_checks': validation_checks,
+            'warnings': warnings,
+            'total_checks': len(validation_checks),
+            'passed_checks': sum(1 for c in validation_checks if c['status'] == 'PASS'),
+            'validation_timestamp': datetime.now().isoformat()
+        }
+    
+    def _validate_anomaly_detection(self, anomaly_results: List[Dict]) -> Dict[str, Any]:
+        """Validate anomaly detection results"""
+        issues = []
+        
+        # Check anomaly scores are in valid range
+        for result in anomaly_results:
+            score = result['anomaly_score']
+            if not 0 <= score <= 100:
+                issues.append(f"Invalid anomaly score {score} for {result['symbol']}")
+        
+        # Validate severity classifications
+        for result in anomaly_results:
+            score = result['anomaly_score']
+            severity = result['severity']
+            
+            expected_severity = None
+            if score >= 80:
+                expected_severity = 'CRITICAL'
+            elif score >= 60:
+                expected_severity = 'HIGH'
+            elif score >= 40:
+                expected_severity = 'MEDIUM'
+            else:
+                expected_severity = 'LOW'
+            
+            if severity != expected_severity:
+                issues.append(f"Severity mismatch for {result['symbol']}: score {score} has severity {severity}, expected {expected_severity}")
+        
+        # Check anomaly rate is reasonable (expected ~15%)
+        anomaly_count = sum(1 for r in anomaly_results if r['is_anomaly'])
+        anomaly_rate = anomaly_count / len(anomaly_results) * 100 if anomaly_results else 0
+        
+        if anomaly_rate > 30:
+            issues.append(f"High anomaly rate: {anomaly_rate:.1f}% (expected ~15%)")
+        elif anomaly_rate < 5 and len(anomaly_results) >= 20:
+            issues.append(f"Low anomaly rate: {anomaly_rate:.1f}% (expected ~15%)")
+        
+        # Validate critical anomalies have high scores
+        critical_anomalies = [r for r in anomaly_results if r['severity'] == 'CRITICAL']
+        for result in critical_anomalies:
+            if result['anomaly_score'] < 80:
+                issues.append(f"Critical anomaly {result['symbol']} has score below 80: {result['anomaly_score']}")
+        
+        status = 'FAIL' if any('Invalid' in i for i in issues) else 'WARNING' if issues else 'PASS'
+        
+        return {
+            'check_name': 'Anomaly Detection Validation',
+            'status': status,
+            'issues': issues,
+            'metrics': {
+                'total_assets': len(anomaly_results),
+                'anomalies_detected': anomaly_count,
+                'anomaly_rate': round(anomaly_rate, 1),
+                'critical_count': len(critical_anomalies)
+            }
+        }
+    
+    def _validate_risk_predictions(self, risk_predictions: Dict) -> Dict[str, Any]:
+        """Validate risk prediction results"""
+        issues = []
+        
+        if not risk_predictions.get('model_trained'):
+            return {
+                'check_name': 'Risk Prediction Validation',
+                'status': 'WARNING',
+                'issues': ['Risk prediction model not trained - insufficient data'],
+                'metrics': {}
+            }
+        
+        predictions = risk_predictions.get('predictions', [])
+        
+        # Validate confidence scores
+        for pred in predictions:
+            confidence = pred['confidence']
+            if not 0 <= confidence <= 100:
+                issues.append(f"Invalid confidence score {confidence} for {pred['symbol']}")
+        
+        # Check model accuracy is reasonable
+        test_accuracy = risk_predictions.get('test_accuracy', 0)
+        if test_accuracy < 50:
+            issues.append(f"Low model accuracy: {test_accuracy}% (below 50%)")
+        elif test_accuracy > 99:
+            issues.append(f"Suspiciously high accuracy: {test_accuracy}% (possible overfitting)")
+        
+        # Validate trend analysis consistency
+        for pred in predictions:
+            current = pred['current_rating']
+            predicted = pred['predicted_rating']
+            trend = pred['trend']
+            
+            rating_order = {'GREEN': 0, 'YELLOW': 1, 'RED': 2}
+            
+            if current == predicted and trend != 'STABLE':
+                issues.append(f"Trend inconsistency for {pred['symbol']}: same rating but trend is {trend}")
+            elif rating_order[predicted] > rating_order[current] and trend != 'DETERIORATING':
+                issues.append(f"Trend inconsistency for {pred['symbol']}: worsening rating but trend is {trend}")
+            elif rating_order[predicted] < rating_order[current] and trend != 'IMPROVING':
+                issues.append(f"Trend inconsistency for {pred['symbol']}: improving rating but trend is {trend}")
+        
+        # Check risk probabilities sum to ~100%
+        for pred in predictions:
+            probs = pred['risk_probabilities']
+            total_prob = sum(probs.values())
+            if not 99 <= total_prob <= 101:
+                issues.append(f"Risk probabilities for {pred['symbol']} sum to {total_prob}% (should be ~100%)")
+        
+        status = 'FAIL' if any('Invalid' in i for i in issues) else 'WARNING' if issues else 'PASS'
+        
+        return {
+            'check_name': 'Risk Prediction Validation',
+            'status': status,
+            'issues': issues,
+            'metrics': {
+                'model_accuracy': test_accuracy,
+                'predictions_made': len(predictions),
+                'rating_changes': sum(1 for p in predictions if p['rating_change'])
+            }
+        }
+    
+    def _validate_feature_quality(self, features_df: pd.DataFrame) -> Dict[str, Any]:
+        """Validate feature data quality"""
+        issues = []
+        
+        # Check for NaN values
+        nan_counts = features_df[self.feature_columns].isna().sum()
+        for feature, count in nan_counts.items():
+            if count > 0:
+                issues.append(f"Feature '{feature}' has {count} NaN values")
+        
+        # Check for infinite values
+        for feature in self.feature_columns:
+            if np.isinf(features_df[feature]).any():
+                issues.append(f"Feature '{feature}' contains infinite values")
+        
+        # Check feature variance (low variance may indicate data quality issues)
+        for feature in self.feature_columns:
+            variance = features_df[feature].var()
+            if variance < 0.0001:
+                issues.append(f"Feature '{feature}' has very low variance ({variance:.6f})")
+        
+        status = 'FAIL' if any('NaN' in i or 'infinite' in i for i in issues) else 'WARNING' if issues else 'PASS'
+        
+        return {
+            'check_name': 'Feature Quality Validation',
+            'status': status,
+            'issues': issues,
+            'metrics': {
+                'features_checked': len(self.feature_columns),
+                'nan_features': int(nan_counts.sum()),
+                'total_samples': len(features_df)
+            }
+        }
+    
+    def _validate_feature_importance(self, feature_importance: List[Dict]) -> Dict[str, Any]:
+        """Validate feature importance results"""
+        issues = []
+        
+        if not feature_importance:
+            return {
+                'check_name': 'Feature Importance Validation',
+                'status': 'WARNING',
+                'issues': ['No feature importance calculated'],
+                'metrics': {}
+            }
+        
+        # Check importance values sum to ~100%
+        total_importance = sum(f['importance'] for f in feature_importance)
+        if not 99 <= total_importance <= 101:
+            issues.append(f"Feature importances sum to {total_importance}% (should be ~100%)")
+        
+        # Check for negative importance
+        for feature in feature_importance:
+            if feature['importance'] < 0:
+                issues.append(f"Negative importance for {feature['feature']}: {feature['importance']}")
+        
+        # Warn if one feature dominates (>60%)
+        top_importance = feature_importance[0]['importance'] if feature_importance else 0
+        if top_importance > 60:
+            issues.append(f"Single feature dominates: {feature_importance[0]['feature']} ({top_importance}%)")
+        
+        status = 'WARNING' if issues else 'PASS'
+        
+        return {
+            'check_name': 'Feature Importance Validation',
+            'status': status,
+            'issues': issues,
+            'metrics': {
+                'total_importance': round(total_importance, 1),
+                'top_feature': feature_importance[0]['feature'] if feature_importance else None,
+                'top_importance': round(top_importance, 1)
+            }
+        }
