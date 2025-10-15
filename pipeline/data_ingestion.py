@@ -15,7 +15,7 @@ class DataIngestionEngine:
         self.mock_data_generator = MockBloombergData()
         self.connection_status = "Connected"
     
-    def ingest_portfolio_data(self, portfolio_size: int = 25) -> List[Dict[str, Any]]:
+    def ingest_portfolio_data(self, portfolio_size: int = 20) -> List[Dict[str, Any]]:
         """
         Ingest portfolio data from Bloomberg API (simulated)
         
@@ -28,11 +28,12 @@ class DataIngestionEngine:
         print(f"Connecting to Bloomberg API...")
         print(f"Fetching data for {portfolio_size} assets...")
         
-        # Generate mock portfolio data
+        # Generate mock portfolio data with unique stocks
         portfolio_data = []
+        selected_stocks = random.sample(self.mock_data_generator.all_stocks, min(portfolio_size, len(self.mock_data_generator.all_stocks)))
         
-        for i in range(portfolio_size):
-            asset_data = self.mock_data_generator.generate_asset_data()
+        for stock in selected_stocks:
+            asset_data = self.mock_data_generator.generate_asset_data_for_stock(stock)
             
             # Add historical price data (252 trading days = 1 year)
             historical_data = self.mock_data_generator.generate_historical_prices(

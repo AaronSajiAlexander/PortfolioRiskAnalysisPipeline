@@ -36,9 +36,9 @@ def main():
     # Portfolio selection
     st.sidebar.subheader("Portfolio Configuration")
     portfolio_size = st.sidebar.slider("Portfolio Size",
-                                       min_value=10,
-                                       max_value=100,
-                                       value=25)
+                                       min_value=1,
+                                       max_value=20,
+                                       value=20)
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",

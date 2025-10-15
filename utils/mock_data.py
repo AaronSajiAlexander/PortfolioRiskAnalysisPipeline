@@ -46,6 +46,18 @@ class MockBloombergData:
             Dictionary containing asset information
         """
         stock = random.choice(self.all_stocks)
+        return self.generate_asset_data_for_stock(stock)
+    
+    def generate_asset_data_for_stock(self, stock: Dict[str, str]) -> Dict[str, Any]:
+        """
+        Generate mock data for a specific stock
+        
+        Args:
+            stock: Dictionary with 'symbol', 'name', and 'sector'
+        
+        Returns:
+            Dictionary containing asset information
+        """
         symbol = stock['symbol']
         company_name = stock['name']
         sector = stock['sector']

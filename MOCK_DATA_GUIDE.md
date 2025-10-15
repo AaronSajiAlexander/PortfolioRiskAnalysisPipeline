@@ -47,60 +47,45 @@ Let's break down each one.
 
 ---
 
-## 1. Generating Asset/Stock Information
+## 1. Real Stock Information
 
 ### What Gets Created
 
-For each fake company in your portfolio, the system creates:
-- Company name (e.g., "Global Technologies")
-- Stock symbol (e.g., "GTCH")
-- Industry sector (Technology, Healthcare, etc.)
-- Current stock price
-- Market capitalization (total company value)
-- Other financial metrics
+The system now uses **20 real stock symbols** from actual companies:
 
-### How Company Names Are Generated
+**10 Well-Known Stocks:**
+- AAPL - Apple Inc. (Technology)
+- MSFT - Microsoft Corporation (Technology)
+- NVDA - NVIDIA Corporation (Technology)
+- GOOGL - Alphabet Inc. (Technology)
+- AMZN - Amazon.com Inc. (Consumer Discretionary)
+- META - Meta Platforms Inc. (Technology)
+- IBM - IBM Corporation (Technology)
+- TSM - Taiwan Semiconductor Manufacturing (Technology)
+- JPM - JPMorgan Chase & Co. (Financial Services)
+- JNJ - Johnson & Johnson (Healthcare)
 
-**The System Uses Two Lists:**
+**10 Risky/Small-Cap Stocks:**
+- SERV - Serve Robotics Inc. (Technology)
+- EVGO - EVgo Inc. (Energy)
+- TDUP - ThredUp Inc. (Consumer Discretionary)
+- USAS - Americas Gold & Silver Corp. (Materials)
+- AEVA - Aeva Technologies Inc. (Technology)
+- ATRO - Astronics Corporation (Industrial)
+- QUBT - Quantum Computing Inc. (Technology)
+- CTRX - Context Therapeutics Inc. (Healthcare)
+- IKT - Inhibikase Therapeutics Inc. (Healthcare)
+- OKLO - Oklo Inc. (Energy)
 
-**Prefixes** (First word):
-- Global, Advanced, United, American, International, Pacific
-- National, Premier, Superior, Dynamic, Strategic, Innovative
-- First, Capital, Metro, Regional, Consolidated, Alliance
-
-**Suffixes** (Second word):
-- Corp, Inc, LLC, Group, Holdings, Systems
-- Technologies, Solutions, Industries, Enterprises
-- Partners, Capital, Resources, Services, International, Global
+### How Stock Selection Works
 
 **Process:**
-1. Randomly pick one prefix: "Global"
-2. Randomly pick one suffix: "Technologies"
-3. Combine them: "Global Technologies"
+1. User selects portfolio size (1-20 stocks)
+2. System randomly selects that many stocks from the pool of 20
+3. Each stock is unique - no duplicates in a portfolio
+4. System generates mock price and historical data for each selected stock
 
-**Result**: Realistic-sounding company names that don't exist in real life.
-
-**Examples:**
-- "Advanced Solutions"
-- "Pacific Holdings"
-- "Dynamic Systems"
-- "Strategic Resources"
-
-### How Stock Symbols Are Generated
-
-**Real Examples:**
-- Apple = AAPL (4 letters)
-- Microsoft = MSFT (4 letters)
-- Google = GOOG (4 letters)
-- AT&T = T (1 letter)
-
-**Our System:**
-1. Pick a length: 2, 3, or 4 characters (most commonly 3)
-2. Start with a random letter from a curated list
-3. Add more random letters
-4. Result: "GTCH", "ADV", "PSL", "DYN"
-
-**Why this works:** Real symbols are just random letter combinations, so our fake ones look identical.
+**Result**: Real company names and symbols with simulated market data.
 
 ### How Prices Are Determined
 
@@ -602,9 +587,10 @@ This adds realism - real stocks get coverage from multiple outlets.
 - We just use mathematical formulas
 - Missing complex microstructure
 
-**Company Names:**
-- Obviously fake (no real company called "Global Technologies Corp")
-- Symbols are random combinations
+**Stock Prices:**
+- While we use real company names and symbols, the prices and historical data are simulated
+- Real stock prices reflect actual market activity and trading
+- Our prices are generated using mathematical models, not real market data
 
 **News Headlines:**
 - Template-based, not real journalism
@@ -637,12 +623,17 @@ Similarly, our mock data:
 
 When you run the application:
 
-**Step 1: Generate 20-40 Assets**
+**Step 1: Select from 20 Real Stocks**
 ```python
-num_assets = random.randint(20, 40)
+# The system now uses 20 real stock symbols:
+# - 10 well-known stocks (AAPL, MSFT, NVDA, GOOGL, AMZN, META, IBM, TSM, JPM, JNJ)
+# - 10 risky/small-cap stocks (SERV, EVGO, TDUP, USAS, AEVA, ATRO, QUBT, CTRX, IKT, OKLO)
+
+num_assets = user_selected_portfolio_size  # Max 20
+selected_stocks = random.sample(all_stocks, num_assets)
 portfolio = []
-for i in range(num_assets):
-    asset = generate_asset_data()
+for stock in selected_stocks:
+    asset = generate_asset_data_for_stock(stock)
     portfolio.append(asset)
 ```
 
