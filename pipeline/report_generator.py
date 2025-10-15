@@ -130,8 +130,11 @@ class ReportGenerator:
         # Appendix
         story.extend(self.create_appendix(portfolio_data, analysis_results))
         
+        # Export test data to CSV files
+        portfolio_csv, analysis_csv = self.export_test_data_to_csv(portfolio_data, analysis_results, timestamp)
+        
         # Test Data Section (for further analysis)
-        story.extend(self.create_test_data_section(portfolio_data, analysis_results))
+        story.extend(self.create_test_data_section(portfolio_data, analysis_results, portfolio_csv, analysis_csv))
         
         # Build PDF
         doc.build(story)
@@ -751,95 +754,53 @@ class ReportGenerator:
         
         return story
     
-    def create_test_data_section(self, portfolio_data: List[Dict], analysis_results: List[Dict]) -> List:
-        """Create test data section with complete portfolio and analysis data for further analysis"""
+    def export_test_data_to_csv(self, portfolio_data: List[Dict], analysis_results: List[Dict], timestamp: str):
+        """Export complete portfolio and risk analysis data to CSV files"""
+        
+        # Export Portfolio Data to CSV
+        portfolio_df = pd.DataFrame(portfolio_data)
+        portfolio_csv_path = os.path.join(self.report_dir, f"portfolio_data_{timestamp}.csv")
+        
+        # Select and order columns for portfolio CSV
+        portfolio_columns = ['symbol', 'company_name', 'sector', 'current_price', 'market_cap', 
+                           'pe_ratio', 'dividend_yield', 'exchange', 'currency']
+        portfolio_export = portfolio_df[portfolio_columns].copy()
+        portfolio_export = portfolio_export.sort_values('market_cap', ascending=False)
+        portfolio_export.to_csv(portfolio_csv_path, index=False)
+        
+        # Export Risk Analysis Data to CSV
+        analysis_df = pd.DataFrame(analysis_results)
+        analysis_csv_path = os.path.join(self.report_dir, f"risk_analysis_{timestamp}.csv")
+        
+        # Select and order columns for risk analysis CSV
+        analysis_columns = ['symbol', 'sector', 'risk_rating', 'risk_score', 'volatility', 
+                          'max_drawdown', 'volume_decline', 'beta', 'sharpe_ratio', 'rsi',
+                          'price_change_1m', 'price_change_3m', 'price_change_6m']
+        analysis_export = analysis_df[analysis_columns].copy()
+        analysis_export = analysis_export.sort_values('risk_score', ascending=False)
+        analysis_export.to_csv(analysis_csv_path, index=False)
+        
+        return portfolio_csv_path, analysis_csv_path
+    
+    def create_test_data_section(self, portfolio_data: List[Dict], analysis_results: List[Dict], 
+                                 portfolio_csv: str, analysis_csv: str) -> List:
+        """Create test data section with CSV references and summary tables for further analysis"""
         story = []
         
         story.append(PageBreak())
         story.append(Paragraph("Test Data - Portfolio Details", self.custom_styles['SectionHeader']))
         
-        # Introduction text
-        intro_text = """
-        This section contains the complete test data used in the analysis. 
-        The data below can be used for further analysis, verification, and detailed review.
+        # Introduction text with CSV file references
+        intro_text = f"""
+        Complete portfolio and risk analysis data has been exported to CSV files for further analysis:
+        <br/><br/>
+        <b>Portfolio Data CSV:</b> {os.path.basename(portfolio_csv)}<br/>
+        <b>Risk Analysis CSV:</b> {os.path.basename(analysis_csv)}<br/>
+        <br/>
+        The tables below provide summary information for quick reference.
         """
         story.append(Paragraph(intro_text, self.styles['Normal']))
         story.append(Spacer(1, 15))
-        
-        # Portfolio Data Table
-        story.append(Paragraph("Complete Portfolio Data", self.custom_styles['SubsectionHeader']))
-        
-        portfolio_table_data = [['Symbol', 'Company', 'Sector', 'Price', 'Market Cap ($B)', 'P/E Ratio', 'Dividend Yield']]
-        
-        for asset in sorted(portfolio_data, key=lambda x: x['market_cap'], reverse=True):
-            portfolio_table_data.append([
-                asset['symbol'],
-                asset['company_name'][:20] + '...' if len(asset['company_name']) > 20 else asset['company_name'],
-                asset['sector'],
-                f"${asset['current_price']:.2f}",
-                f"{asset['market_cap']/1e9:.2f}",
-                f"{asset.get('pe_ratio', 0):.2f}" if asset.get('pe_ratio') else 'N/A',
-                f"{asset.get('dividend_yield', 0)*100:.2f}%" if asset.get('dividend_yield') else '0.00%'
-            ])
-        
-        portfolio_table = Table(portfolio_table_data, colWidths=[50, 110, 80, 50, 70, 55, 65])
-        portfolio_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 8)
-        ]))
-        
-        story.append(portfolio_table)
-        story.append(Spacer(1, 20))
-        
-        # Risk Analysis Results Table
-        story.append(PageBreak())
-        story.append(Paragraph("Complete Risk Analysis Results", self.custom_styles['SubsectionHeader']))
-        
-        analysis_table_data = [['Symbol', 'Risk Rating', 'Risk Score', 'Volatility', 'Max DD', 'Beta', 'Sharpe', 'RSI']]
-        
-        for result in sorted(analysis_results, key=lambda x: x['risk_score'], reverse=True):
-            analysis_table_data.append([
-                result['symbol'],
-                result['risk_rating'],
-                str(result['risk_score']),
-                f"{result['volatility']*100:.1f}%",
-                f"{result['max_drawdown']*100:.1f}%",
-                f"{result['beta']:.2f}",
-                f"{result['sharpe_ratio']:.2f}",
-                f"{result['rsi']:.1f}"
-            ])
-        
-        analysis_table = Table(analysis_table_data)
-        analysis_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 8)
-        ]))
-        
-        # Color code risk ratings
-        for i, result in enumerate(analysis_results, 1):
-            if result['risk_rating'] == 'RED':
-                analysis_table.setStyle(TableStyle([('BACKGROUND', (1, i), (1, i), colors.lightcoral)]))
-            elif result['risk_rating'] == 'YELLOW':
-                analysis_table.setStyle(TableStyle([('BACKGROUND', (1, i), (1, i), colors.lightyellow)]))
-            elif result['risk_rating'] == 'GREEN':
-                analysis_table.setStyle(TableStyle([('BACKGROUND', (1, i), (1, i), colors.lightgreen)]))
-        
-        story.append(analysis_table)
-        story.append(Spacer(1, 20))
         
         # Performance Metrics Table
         story.append(Paragraph("Performance Metrics Data", self.custom_styles['SubsectionHeader']))
@@ -875,7 +836,7 @@ class ReportGenerator:
         # Risk Flags Details Table
         story.append(Paragraph("Risk Flags Details", self.custom_styles['SubsectionHeader']))
         
-        risk_flags_table_data = [['Symbol', 'High Vol', 'Ext. DD', 'Vol Decline', 'Sharp Decline', 'Neg. Returns', 'Low Sharpe', 'Overbought']]
+        risk_flags_table_data = [['Symbol', 'High Vol', 'Ext. DD', 'Vol Collapse', 'Severe Dec', 'Ext. Dec', 'Poor Sharpe', 'Mom. Break']]
         
         for result in sorted(analysis_results, key=lambda x: x['risk_score'], reverse=True):
             flags = result['risk_flags']
@@ -883,11 +844,11 @@ class ReportGenerator:
                 result['symbol'],
                 '✓' if flags.get('high_volatility') else '✗',
                 '✓' if flags.get('extreme_drawdown') else '✗',
-                '✓' if flags.get('volume_decline') else '✗',
-                '✓' if flags.get('sharp_decline') else '✗',
-                '✓' if flags.get('negative_returns') else '✗',
-                '✓' if flags.get('low_sharpe') else '✗',
-                '✓' if flags.get('overbought_or_oversold') else '✗'
+                '✓' if flags.get('volume_collapse') else '✗',
+                '✓' if flags.get('severe_decline') else '✗',
+                '✓' if flags.get('extended_decline') else '✗',
+                '✓' if flags.get('poor_risk_return') else '✗',
+                '✓' if flags.get('momentum_breakdown') else '✗'
             ])
         
         risk_flags_table = Table(risk_flags_table_data)
