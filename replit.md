@@ -13,6 +13,7 @@ Preferred communication style: Simple, everyday language.
 - **State Management**: Streamlit session state is used for managing pipeline results and execution timings.
 - **UI/UX**: Interactive sliders, buttons for staged execution, and a wide layout for data visualization.
 - **Visualization**: Matplotlib for charts and ReportLab for PDF generation.
+- **Downloads**: Three download buttons available on the home page after pipeline execution (PDF Report, Portfolio CSV, Risk Analysis CSV).
 
 ### Backend Architecture
 - **Pipeline Pattern**: A five-stage sequential processing pipeline:
