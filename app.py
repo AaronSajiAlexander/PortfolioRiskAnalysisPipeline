@@ -35,7 +35,8 @@ def main():
 
     # Fixed portfolio size (all 20 stocks)
     portfolio_size = 20
-    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks")
+    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks (real-time API data)")
+    st.sidebar.warning("⏱️ Data fetch takes ~4 minutes (API rate limits)")
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",

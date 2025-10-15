@@ -1,29 +1,48 @@
-# Mock Data Generation Guide
+# Real-Time Stock Data Integration Guide
 
-This guide explains how the test/demo data is created for the portfolio risk analysis application, written in simple, everyday language.
+This guide explains how the portfolio risk analysis application now uses real-time stock market data from Alpha Vantage API.
 
 ---
 
-## Why Do We Need Mock Data?
+## Real-Time Data Integration
 
-### The Problem
+### The Current System
 
-This application is designed to analyze real investment portfolios using data from Bloomberg (a professional financial data service). But:
+This application now fetches **real market data** from the Alpha Vantage API for all 20 stocks:
 
-- Bloomberg charges thousands of dollars per month for access
-- Most users don't have Bloomberg accounts
-- We want you to try the application without spending money
-- We need realistic data to demonstrate all features
+- **Real stock symbols**: AAPL, MSFT, NVDA, GOOGL, AMZN, META, IBM, TSM, JPM, JNJ, SERV, EVGO, TDUP, USAS, AEVA, ATRO, QUBT, CTRX, IKT, OKLO
+- **Real intraday prices**: 5-minute interval data from actual trading
+- **Real trading volumes**: Actual market activity
+- **Live data**: Updated throughout the trading day
 
-### The Solution
+### How It Works
 
-We created a "mock data generator" - a system that creates fake but realistic financial data that looks and behaves like real market data. Think of it like:
+The system connects to Alpha Vantage's free API to fetch:
+1. Intraday 5-minute price data for each stock
+2. Open, high, low, close prices
+3. Trading volumes
+4. Recent historical data
 
-- **Movie props**: They look real on camera but aren't actual items
-- **Flight simulator**: Feels like flying a real plane without leaving the ground
-- **Practice exam**: Has the same format as the real test but different questions
+This data is then:
+- Aggregated into daily historical prices
+- Used to calculate real volatility metrics
+- Analyzed for actual risk patterns
+- Displayed in the risk analysis pipeline
 
-The mock data is realistic enough to demonstrate how the system works, but it's completely made up.
+### API Rate Limits
+
+**Important**: The free Alpha Vantage API has rate limits:
+- **5 API calls per minute** maximum
+- **Fetching 20 stocks takes ~4 minutes** (12-second delay between calls)
+- This ensures we stay within rate limits
+- Fallback to simulated data if API fails
+
+### Fallback System
+
+If the API is unavailable or rate-limited:
+- The system automatically uses simulated data
+- Ensures the pipeline continues to work
+- Data quality score indicates if real or simulated data was used
 
 ---
 
