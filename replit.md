@@ -1,7 +1,7 @@
 # Portfolio Risk Analysis Pipeline
 
 ## Overview
-This project is a multi-stage portfolio risk analysis application built with Streamlit. It simulates a Bloomberg data integration pipeline to analyze financial portfolios through five key stages: data ingestion, core risk analysis, machine learning analysis (anomaly detection & risk prediction), sentiment analysis for high-risk assets, and comprehensive PDF report generation. The application uses mock data to simulate real-world financial feeds, applying time-series analysis, rule-based risk scoring, advanced machine learning, and NLP-based sentiment analysis to provide actionable investment insights. The primary goal is to empower users with a powerful tool for understanding and mitigating portfolio risks.
+This project is a multi-stage portfolio risk analysis application built with Streamlit. It simulates a Bloomberg data integration pipeline to analyze financial portfolios through five sequential stages: (1) Data Ingestion, (2) Core Risk Analysis, (3) ML Analysis (Anomaly Detection & Risk Prediction), (4) Sentiment Analysis for high-risk assets, and (5) Comprehensive PDF Report Generation. The application uses mock data to simulate real-world financial feeds, applying time-series analysis, rule-based risk scoring, advanced machine learning, and NLP-based sentiment analysis to provide actionable investment insights. The primary goal is to empower users with a powerful tool for understanding and mitigating portfolio risks.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -17,11 +17,11 @@ Preferred communication style: Simple, everyday language.
 
 ### Backend Architecture
 - **Pipeline Pattern**: A five-stage sequential processing pipeline:
-  1. **Data Ingestion**: Simulates Bloomberg API data fetching.
-  2. **Core Analysis**: Performs time-series and rule-based risk scoring.
-  3. **ML Analysis**: Conducts anomaly detection (Isolation Forest) and risk prediction (Random Forest Classifier).
-  4. **Sentiment Analysis**: NLP-based analysis exclusively on RED-flagged assets.
-  5. **Report Generation**: Creates PDF reports with visualizations and ML insights.
+  1. **Stage 1 - Data Ingestion**: Simulates Bloomberg API data fetching.
+  2. **Stage 2 - Core Analysis**: Performs time-series and rule-based risk scoring.
+  3. **Stage 3 - ML Analysis**: Conducts anomaly detection (Isolation Forest) and risk prediction (Random Forest Classifier).
+  4. **Stage 4 - Sentiment Analysis**: NLP-based analysis exclusively on RED-flagged assets.
+  5. **Stage 5 - Report Generation**: Creates PDF reports with visualizations and ML insights.
 - **Modular Design**: Each pipeline stage is encapsulated in its own engine class.
 - **Data Flow**: Linear progression with staged transformations.
 - **Risk Score Calculation**: Based on 7 distinct risk flags (e.g., high_volatility, extreme_drawdown).
