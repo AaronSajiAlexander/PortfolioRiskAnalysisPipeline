@@ -45,8 +45,9 @@ def main():
     st.sidebar.subheader("Stage-by-Stage Execution")
     stage1_btn = st.sidebar.button("Stage 1: Data Ingestion")
     stage2_btn = st.sidebar.button("Stage 2: Core Analysis")
-    stage3_btn = st.sidebar.button("Stage 3: Sentiment Analysis")
-    stage4_btn = st.sidebar.button("Stage 4: Report Generation")
+    stage3_btn = st.sidebar.button("Stage 3: ML Analysis")
+    stage4_btn = st.sidebar.button("Stage 4: Sentiment Analysis")
+    stage5_btn = st.sidebar.button("Stage 5: Report Generation")
     
     # Main content area
     if execute_pipeline:
@@ -61,13 +62,15 @@ def main():
         execute_stage_3()
     elif stage4_btn:
         execute_stage_4()
+    elif stage5_btn:
+        execute_stage_5()
     
     # Display results if available
     if st.session_state.pipeline_results:
         display_pipeline_results()
 
 def execute_full_pipeline(portfolio_size):
-    """Execute the complete four-stage pipeline"""
+    """Execute the complete five-stage pipeline"""
     st.header("🔄 Executing Full Pipeline")
     
     # Progress tracking
@@ -99,8 +102,8 @@ def execute_full_pipeline(portfolio_size):
         yellow_flags = len([a for a in analysis_results if a['risk_rating'] == 'YELLOW'])
         st.success(f"✅ Stage 2 Complete: {red_flags} RED flags, {yellow_flags} YELLOW flags")
         
-        # Stage 2.5: ML Analysis
-        status_text.text("Stage 2.5: Running ML analysis (Anomaly Detection & Risk Prediction)...")
+        # Stage 3: ML Analysis
+        status_text.text("Stage 3: Running ML analysis (Anomaly Detection & Risk Prediction)...")
         progress_bar.progress(60)
         
         ml_engine = MLAnalysisEngine()
@@ -108,10 +111,10 @@ def execute_full_pipeline(portfolio_size):
         
         progress_bar.progress(70)
         anomaly_count = ml_results['ml_summary']['anomaly_summary']['total_anomalies']
-        st.success(f"✅ Stage 2.5 Complete: {anomaly_count} anomalies detected, ML model trained")
+        st.success(f"✅ Stage 3 Complete: {anomaly_count} anomalies detected, ML model trained")
         
-        # Stage 3: Sentiment Analysis
-        status_text.text("Stage 3: Analyzing sentiment for flagged assets...")
+        # Stage 4: Sentiment Analysis
+        status_text.text("Stage 4: Analyzing sentiment for flagged assets...")
         progress_bar.progress(80)
         
         sentiment_engine = SentimentAnalysisEngine()
@@ -119,10 +122,10 @@ def execute_full_pipeline(portfolio_size):
         sentiment_results = sentiment_engine.analyze_sentiment(red_flagged_assets)
         
         progress_bar.progress(90)
-        st.success(f"✅ Stage 3 Complete: Sentiment analysis for {len(sentiment_results)} RED-flagged assets")
+        st.success(f"✅ Stage 4 Complete: Sentiment analysis for {len(sentiment_results)} RED-flagged assets")
         
-        # Stage 4: Report Generation
-        status_text.text("Stage 4: Generating PDF report with ML insights...")
+        # Stage 5: Report Generation
+        status_text.text("Stage 5: Generating PDF report with ML insights...")
         progress_bar.progress(95)
         
         report_generator = ReportGenerator()
@@ -248,8 +251,47 @@ def execute_stage_2():
     st.session_state.stage_results['stage2'] = analysis_results
 
 def execute_stage_3():
-    """Execute Stage 3: Sentiment Analysis"""
-    st.header("📰 Stage 3: Sentiment Analysis")
+    """Execute Stage 3: ML Analysis"""
+    st.header("🤖 Stage 3: ML Analysis")
+    
+    if 'stage_results' not in st.session_state or 'stage2' not in st.session_state.stage_results:
+        st.error("❌ Please run Stage 2 first to generate analysis results")
+        return
+    
+    analysis_results = st.session_state.stage_results['stage2']
+    
+    with st.spinner("Running ML analysis (Anomaly Detection & Risk Prediction)..."):
+        ml_engine = MLAnalysisEngine()
+        ml_results = ml_engine.analyze_portfolio_ml(analysis_results)
+    
+    anomaly_count = ml_results['ml_summary']['anomaly_summary']['total_anomalies']
+    critical_count = ml_results['ml_summary']['anomaly_summary']['critical_anomalies']
+    
+    st.success(f"✅ ML analysis complete: {anomaly_count} anomalies detected ({critical_count} critical)")
+    
+    # Display ML summary
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Total Anomalies", anomaly_count)
+    with col2:
+        st.metric("Critical Anomalies", critical_count)
+    with col3:
+        if ml_results['risk_prediction'].get('model_trained'):
+            st.metric("Model Accuracy", f"{ml_results['risk_prediction']['test_accuracy']}%")
+        else:
+            st.metric("Model Status", "Not Trained")
+    
+    # Display anomaly results
+    if ml_results['anomaly_detection']:
+        st.subheader("🔍 Anomaly Detection Results")
+        anomaly_df = pd.DataFrame(ml_results['anomaly_detection'])
+        st.dataframe(anomaly_df[['symbol', 'sector', 'anomaly_score', 'severity', 'is_anomaly']], use_container_width=True)
+    
+    st.session_state.stage_results['stage3'] = ml_results
+
+def execute_stage_4():
+    """Execute Stage 4: Sentiment Analysis"""
+    st.header("📰 Stage 4: Sentiment Analysis")
     
     if 'stage_results' not in st.session_state or 'stage2' not in st.session_state.stage_results:
         st.error("❌ Please run Stage 2 first to identify RED-flagged assets")
@@ -278,25 +320,26 @@ def execute_stage_3():
         avg_sentiment = np.mean([s['sentiment_score'] for s in sentiment_results])
         st.metric("📈 Average Sentiment Score", f"{avg_sentiment:.3f}")
     
-    st.session_state.stage_results['stage3'] = sentiment_results
+    st.session_state.stage_results['stage4'] = sentiment_results
 
-def execute_stage_4():
-    """Execute Stage 4: Report Generation"""
-    st.header("📄 Stage 4: Report Generation")
+def execute_stage_5():
+    """Execute Stage 5: Report Generation"""
+    st.header("📄 Stage 5: Report Generation")
     
-    required_stages = ['stage1', 'stage2']
+    required_stages = ['stage1', 'stage2', 'stage3']
     if 'stage_results' not in st.session_state or not all(stage in st.session_state.stage_results for stage in required_stages):
-        st.error("❌ Please run Stages 1 and 2 first")
+        st.error("❌ Please run Stages 1, 2, and 3 first")
         return
     
     portfolio_data = st.session_state.stage_results['stage1']
     analysis_results = st.session_state.stage_results['stage2']
-    sentiment_results = st.session_state.stage_results.get('stage3', [])
+    ml_results = st.session_state.stage_results['stage3']
+    sentiment_results = st.session_state.stage_results.get('stage4', [])
     
     with st.spinner("Generating comprehensive PDF report and CSV files..."):
         report_generator = ReportGenerator()
         report_files = report_generator.generate_report(
-            portfolio_data, analysis_results, sentiment_results
+            portfolio_data, analysis_results, sentiment_results, ml_results
         )
     
     st.success("✅ PDF report and CSV files generated successfully!")
@@ -312,7 +355,7 @@ def execute_stage_4():
                     data=pdf_file.read(),
                     file_name=os.path.basename(report_files['pdf_path']),
                     mime="application/pdf",
-                    key="stage4_pdf"
+                    key="stage5_pdf"
                 )
     
     with col2:
@@ -323,7 +366,7 @@ def execute_stage_4():
                     data=csv_file.read(),
                     file_name=os.path.basename(report_files['portfolio_csv']),
                     mime="text/csv",
-                    key="stage4_portfolio_csv"
+                    key="stage5_portfolio_csv"
                 )
     
     with col3:
@@ -334,7 +377,7 @@ def execute_stage_4():
                     data=csv_file.read(),
                     file_name=os.path.basename(report_files['analysis_csv']),
                     mime="text/csv",
-                    key="stage4_analysis_csv"
+                    key="stage5_analysis_csv"
                 )
 
 def display_pipeline_results():
