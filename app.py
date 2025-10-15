@@ -126,7 +126,7 @@ def execute_full_pipeline(portfolio_size):
         progress_bar.progress(95)
         
         report_generator = ReportGenerator()
-        pdf_path = report_generator.generate_report(
+        report_files = report_generator.generate_report(
             portfolio_data, analysis_results, sentiment_results, ml_results
         )
         
@@ -140,7 +140,9 @@ def execute_full_pipeline(portfolio_size):
             'analysis_results': analysis_results,
             'ml_results': ml_results,
             'sentiment_results': sentiment_results,
-            'pdf_path': pdf_path,
+            'pdf_path': report_files['pdf_path'],
+            'portfolio_csv': report_files['portfolio_csv'],
+            'analysis_csv': report_files['analysis_csv'],
             'red_flags': red_flags,
             'yellow_flags': yellow_flags
         }
@@ -149,15 +151,38 @@ def execute_full_pipeline(portfolio_size):
         status_text.text("Pipeline execution completed!")
         st.success(f"✅ Pipeline Complete in {execution_time:.2f} seconds!")
         
-        # Offer PDF download
-        if os.path.exists(pdf_path):
-            with open(pdf_path, 'rb') as pdf_file:
-                st.download_button(
-                    label="📄 Download PDF Report",
-                    data=pdf_file.read(),
-                    file_name=f"portfolio_risk_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                    mime="application/pdf"
-                )
+        # Offer file downloads
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if os.path.exists(report_files['pdf_path']):
+                with open(report_files['pdf_path'], 'rb') as pdf_file:
+                    st.download_button(
+                        label="📄 Download PDF Report",
+                        data=pdf_file.read(),
+                        file_name=os.path.basename(report_files['pdf_path']),
+                        mime="application/pdf"
+                    )
+        
+        with col2:
+            if os.path.exists(report_files['portfolio_csv']):
+                with open(report_files['portfolio_csv'], 'rb') as csv_file:
+                    st.download_button(
+                        label="📊 Download Portfolio CSV",
+                        data=csv_file.read(),
+                        file_name=os.path.basename(report_files['portfolio_csv']),
+                        mime="text/csv"
+                    )
+        
+        with col3:
+            if os.path.exists(report_files['analysis_csv']):
+                with open(report_files['analysis_csv'], 'rb') as csv_file:
+                    st.download_button(
+                        label="📈 Download Risk Analysis CSV",
+                        data=csv_file.read(),
+                        file_name=os.path.basename(report_files['analysis_csv']),
+                        mime="text/csv"
+                    )
         
     except Exception as e:
         st.error(f"❌ Pipeline execution failed: {str(e)}")
@@ -268,22 +293,49 @@ def execute_stage_4():
     analysis_results = st.session_state.stage_results['stage2']
     sentiment_results = st.session_state.stage_results.get('stage3', [])
     
-    with st.spinner("Generating comprehensive PDF report..."):
+    with st.spinner("Generating comprehensive PDF report and CSV files..."):
         report_generator = ReportGenerator()
-        pdf_path = report_generator.generate_report(
+        report_files = report_generator.generate_report(
             portfolio_data, analysis_results, sentiment_results
         )
     
-    st.success("✅ PDF report generated successfully!")
+    st.success("✅ PDF report and CSV files generated successfully!")
     
-    if os.path.exists(pdf_path):
-        with open(pdf_path, 'rb') as pdf_file:
-            st.download_button(
-                label="📄 Download PDF Report",
-                data=pdf_file.read(),
-                file_name=f"portfolio_risk_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                mime="application/pdf"
-            )
+    # Display download buttons
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if os.path.exists(report_files['pdf_path']):
+            with open(report_files['pdf_path'], 'rb') as pdf_file:
+                st.download_button(
+                    label="📄 Download PDF Report",
+                    data=pdf_file.read(),
+                    file_name=os.path.basename(report_files['pdf_path']),
+                    mime="application/pdf",
+                    key="stage4_pdf"
+                )
+    
+    with col2:
+        if os.path.exists(report_files['portfolio_csv']):
+            with open(report_files['portfolio_csv'], 'rb') as csv_file:
+                st.download_button(
+                    label="📊 Download Portfolio CSV",
+                    data=csv_file.read(),
+                    file_name=os.path.basename(report_files['portfolio_csv']),
+                    mime="text/csv",
+                    key="stage4_portfolio_csv"
+                )
+    
+    with col3:
+        if os.path.exists(report_files['analysis_csv']):
+            with open(report_files['analysis_csv'], 'rb') as csv_file:
+                st.download_button(
+                    label="📈 Download Risk Analysis CSV",
+                    data=csv_file.read(),
+                    file_name=os.path.basename(report_files['analysis_csv']),
+                    mime="text/csv",
+                    key="stage4_analysis_csv"
+                )
 
 def display_pipeline_results():
     """Display comprehensive pipeline results"""
@@ -404,18 +456,52 @@ def display_pipeline_results():
             st.info("No RED-flagged assets required sentiment analysis")
     
     with tab5:
-        st.subheader("Generated Report")
-        if os.path.exists(results['pdf_path']):
-            st.success("PDF report ready for download")
-            with open(results['pdf_path'], 'rb') as pdf_file:
-                st.download_button(
-                    label="📄 Download Complete Report",
-                    data=pdf_file.read(),
-                    file_name=f"portfolio_risk_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                    mime="application/pdf"
-                )
-        else:
-            st.error("Report file not found")
+        st.subheader("Generated Report & Data Files")
+        
+        # Download buttons in columns
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if 'pdf_path' in results and os.path.exists(results['pdf_path']):
+                st.success("📄 PDF Report Ready")
+                with open(results['pdf_path'], 'rb') as pdf_file:
+                    st.download_button(
+                        label="📄 Download PDF Report",
+                        data=pdf_file.read(),
+                        file_name=os.path.basename(results['pdf_path']),
+                        mime="application/pdf",
+                        key="tab_pdf"
+                    )
+            else:
+                st.error("PDF not found")
+        
+        with col2:
+            if 'portfolio_csv' in results and os.path.exists(results['portfolio_csv']):
+                st.success("📊 Portfolio CSV Ready")
+                with open(results['portfolio_csv'], 'rb') as csv_file:
+                    st.download_button(
+                        label="📊 Download Portfolio CSV",
+                        data=csv_file.read(),
+                        file_name=os.path.basename(results['portfolio_csv']),
+                        mime="text/csv",
+                        key="tab_portfolio_csv"
+                    )
+            else:
+                st.info("Portfolio CSV not available")
+        
+        with col3:
+            if 'analysis_csv' in results and os.path.exists(results['analysis_csv']):
+                st.success("📈 Analysis CSV Ready")
+                with open(results['analysis_csv'], 'rb') as csv_file:
+                    st.download_button(
+                        label="📈 Download Risk Analysis CSV",
+                        data=csv_file.read(),
+                        file_name=os.path.basename(results['analysis_csv']),
+                        mime="text/csv",
+                        key="tab_analysis_csv"
+                    )
+            else:
+                st.info("Analysis CSV not available")
 
 if __name__ == "__main__":
     main()

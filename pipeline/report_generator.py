@@ -139,7 +139,11 @@ class ReportGenerator:
         # Build PDF
         doc.build(story)
         
-        return pdf_path
+        return {
+            'pdf_path': pdf_path,
+            'portfolio_csv': portfolio_csv,
+            'analysis_csv': analysis_csv
+        }
     
     def create_title_page(self, portfolio_data: List[Dict], analysis_results: List[Dict]) -> List:
         """Create report title page"""
