@@ -64,6 +64,33 @@ Preferred communication style: Simple, everyday language.
 
 ### File System Dependencies
 - Requires write access to `/reports` and `/charts` directories.
+
+## PDF Report Structure
+
+The generated PDF reports include comprehensive analysis across multiple sections:
+
+### Report Sections
+1. **Title Page**: Report metadata, portfolio size, and risk assessment summary
+2. **Executive Summary**: Key findings, risk concentration, and sentiment overview
+3. **Portfolio Overview**: Sector allocation with market cap breakdown
+4. **Risk Analysis Results**: Risk distribution and high-risk asset details
+5. **Machine Learning Analysis**: Anomaly detection results, risk predictions, feature importance, and ML validation results
+6. **Sentiment Analysis**: Sentiment scores, trends, and key themes for RED-flagged assets
+7. **Detailed Asset Analysis**: In-depth analysis of top 5 highest risk assets
+8. **Recommendations**: Actionable recommendations based on risk analysis
+9. **Appendix**: Methodology, risk thresholds, and report generation details
+10. **Test Data Section**: Complete portfolio and analysis data for further analysis
+
+### Test Data Section
+The Test Data section (added at the end of reports) provides comprehensive raw data for validation and further analysis:
+- **Complete Portfolio Data**: All assets with symbols, companies, sectors, prices, market caps, P/E ratios, and dividend yields
+- **Complete Risk Analysis Results**: All risk metrics including ratings (color-coded), volatility, max drawdown, beta, Sharpe ratio, and RSI
+- **Performance Metrics Data**: Returns (1M, 3M, 6M), volume decline, and Sharpe ratios
+- **Risk Flags Details**: Detailed breakdown of which risk flags are triggered for each asset (high volatility, extreme drawdown, volume collapse, etc.)
+- **Data Summary**: Metadata about the test data generation and analysis period
+
+This section enables users to perform custom analysis, verify results, and conduct detailed reviews of all portfolio data.
+
 ## ML Validation System
 
 To ensure ML results are accurate and reliable, an automated validation system runs after ML analysis completes.

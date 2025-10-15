@@ -844,7 +844,7 @@ class ReportGenerator:
         # Performance Metrics Table
         story.append(Paragraph("Performance Metrics Data", self.custom_styles['SubsectionHeader']))
         
-        performance_table_data = [['Symbol', '1M Return', '3M Return', '6M Return', 'Avg Volume', 'Vol Change']]
+        performance_table_data = [['Symbol', '1M Return', '3M Return', '6M Return', 'Vol Decline', 'Sharpe Ratio']]
         
         for result in sorted(analysis_results, key=lambda x: x['symbol']):
             performance_table_data.append([
@@ -852,8 +852,8 @@ class ReportGenerator:
                 f"{result['price_change_1m']*100:.1f}%",
                 f"{result['price_change_3m']*100:.1f}%",
                 f"{result['price_change_6m']*100:.1f}%",
-                f"{result['avg_volume']:,.0f}",
-                f"{result['volume_change']*100:.1f}%"
+                f"{result['volume_decline']*100:.1f}%",
+                f"{result['sharpe_ratio']:.2f}"
             ])
         
         performance_table = Table(performance_table_data)
