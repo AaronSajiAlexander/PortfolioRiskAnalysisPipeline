@@ -35,7 +35,7 @@ def main():
 
     # Fixed portfolio size (all 20 stocks)
     portfolio_size = 20
-    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks (all available)")
+    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks")
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",
