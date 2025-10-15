@@ -33,12 +33,9 @@ def main():
     # Sidebar for pipeline controls
     st.sidebar.header("Pipeline Controls")
 
-    # Portfolio selection
-    st.sidebar.subheader("Portfolio Configuration")
-    portfolio_size = st.sidebar.slider("Portfolio Size",
-                                       min_value=1,
-                                       max_value=20,
-                                       value=20)
+    # Fixed portfolio size (all 20 stocks)
+    portfolio_size = 20
+    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks (all available)")
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",
