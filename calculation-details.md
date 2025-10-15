@@ -1,62 +1,72 @@
-# Portfolio Risk Analysis Pipeline
+# Financial Risk Metrics Documentation
 
-## Overview
-This project is a multi-stage portfolio risk analysis application built with Streamlit. It simulates a Bloomberg data integration pipeline to analyze financial portfolios through five sequential stages: Data Ingestion, Core Risk Analysis, ML Analysis (Anomaly Detection & Risk Prediction), Sentiment Analysis for high-risk assets, and Comprehensive PDF Report Generation. The application uses mock data to simulate real-world financial feeds, applying time-series analysis, rule-based risk scoring, advanced machine learning, and NLP-based sentiment analysis to provide actionable investment insights. The primary goal is to empower users with a powerful tool for understanding and mitigating portfolio risks.
+This document outlines the core financial risk metrics used in the project, detailing their calculation, purpose, and critical application in both **Rule-Based Risk Rating** and **Machine Learning Models** for risk prediction.
 
-## User Preferences
-Preferred communication style: Simple, everyday language.
+---
 
-## System Architecture
+## 1. Core Risk Metrics and Calculations
 
-### Frontend Architecture
-- **Framework**: Streamlit web application with a single-page design and sidebar controls.
-- **State Management**: Streamlit session state for pipeline results and timings.
-- **UI/UX**: Interactive elements (sliders, buttons), wide layout for visualizations.
-- **Visualization**: Matplotlib for charts, ReportLab for PDF generation.
-- **Downloads**: PDF report, portfolio CSV, and risk analysis CSV download options.
+| Metric | Purpose | Calculation (Conceptual) | Python Snippet (Numpy) |
+| :--- | :--- | :--- | :--- |
+| **Volatility** | Measures price fluctuation (unpredictability). High volatility $\rightarrow$ high risk. | Annualized standard deviation of daily returns. | `volatility = np.std(returns) * np.sqrt(252)` |
+| **Maximum Drawdown (MDD)** | Largest percentage drop from a peak to a subsequent trough. Worst-case loss scenario. | Largest peak-to-trough decline in cumulative value. | `max_drawdown = np.min(drawdown)` |
+| **Sharpe Ratio** | Risk-adjusted return. Measures excess return per unit of volatility (assuming 2% risk-free rate). | (Annualized Excess Return) / Volatility | `sharpe_ratio = excess_returns / volatility` |
+| **RSI (Relative Strength Index)** | Momentum indicator determining if an asset is overbought ($\text{RSI}>70$) or oversold ($\text{RSI}<30$). | Ratio of average gains to average losses over 14 periods. | $\text{RSI} = 100 - \left( \frac{100}{1 + \text{RS}} \right)$ |
+| **Beta ($\beta$)** | Measures an asset's volatility relative to the overall market. **Systematic risk** indicator. | Covariance of asset and market returns divided by market variance. | $\beta = \frac{\text{Covariance}}{\text{Market Variance}}$ |
 
-### Backend Architecture
-- **Pipeline Pattern**: A five-stage sequential processing pipeline:
-  1. **Stage 1 - Data Ingestion**: Simulates Bloomberg API data fetching.
-  2. **Stage 2 - Core Analysis**: Performs time-series and rule-based risk scoring with 7 risk flags and a GREEN/YELLOW/RED rating system.
-  3. **Stage 3 - ML Analysis**: Conducts anomaly detection (Isolation Forest) and risk prediction (Random Forest Classifier). Includes ML validation and feature importance analysis.
-  4. **Stage 4 - Sentiment Analysis**: NLP-based analysis (TextBlob) exclusively on RED-flagged assets, providing sentiment scores, trends, themes, and confidence.
-  5. **Stage 5 - Report Generation**: Creates PDF reports with visualizations and ML insights.
-- **Modular Design**: Each pipeline stage is encapsulated in its own engine class.
-- **Data Flow**: Linear progression with staged transformations.
-- **ML Validation System**: Automated checks validate anomaly detection, risk prediction, feature quality, and feature importance.
+---
 
-### Data Storage Solutions
-- **In-Memory**: Pandas DataFrames for all data manipulation.
-- **File System**: Reports saved to `/reports`, charts to `/charts`.
-- **Session State**: Streamlit session state for managing pipeline results.
-- **No Database**: Application is stateless.
+## 2. Application in Project
 
-### Key Technologies
-- **Data Processing**: NumPy, Pandas
-- **Machine Learning**: Scikit-learn (Isolation Forest, Random Forest Classifier)
-- **NLP**: TextBlob
-- **Visualization**: Matplotlib
-- **PDF Generation**: ReportLab
-- **Web Framework**: Streamlit
+These metrics are fundamental to the project's **dual-approach risk assessment strategy**—combining deterministic rules with predictive modeling.
 
-## External Dependencies
+### 🎯 Rule-Based Risk Calculator
 
-### Third-party Libraries
-- **streamlit**: Web application framework.
-- **pandas**: Data manipulation.
-- **numpy**: Numerical operations.
-- **scikit-learn**: Machine learning algorithms.
-- **matplotlib**: Charting.
-- **reportlab**: PDF generation.
-- **textblob**: Sentiment analysis.
+The metrics feed into a **hierarchical flag system** to assign an asset a $\text{GREEN}$, $\text{YELLOW}$, or $\text{RED}$ risk rating.
 
-### Simulated External Services
-- **Bloomberg API**: Simulated via `MockBloombergData` class for financial data (asset pricing, historical series, volume data, market capitalization, Bloomberg IDs).
+| Metric | Rule-Based Flag Trigger | Consequence | Rating Impact |
+| :--- | :--- | :--- | :--- |
+| **Maximum Drawdown** | **Critical Flag: extreme\_drawdown** if MDD $< -20\%$ | Asset has experienced severe losses. | **Immediate RED Rating** 🚨 |
+| **Volatility** | **Warning Flag: high\_volatility** if Annualized Volatility $> 40\%$ | Price swings are highly unpredictable. | Contributes to $\text{YELLOW}$ or $\text{RED}$ rating. |
+| **Sharpe Ratio** | **Warning Flag: poor\_risk\_return** if Sharpe Ratio $< -0.5$ | Returns do not adequately compensate for the risk taken. | Contributes to $\text{YELLOW}$ or $\text{RED}$ rating. |
+| **RSI & Beta** | Not directly used for flag calculation. | Provide context for momentum and market sensitivity. | N/A |
 
-### Data Sources (Simulated)
-- **News Sources**: Mock news feeds from various financial outlets (Reuters, Bloomberg News, Financial Times, WSJ, etc.).
-- **Market Data**: Mock time-series data for prices, volumes, and technical indicators.
+#### Final Rating Logic
 
-### File System Dependencies
-- Requires write access to `/reports` and `/charts` directories.
+* **RED** 🚨: Triggered by any **Critical Flag** (e.g., *extreme\_drawdown*, *volume\_collapse*, *severe\_decline*) or a high accumulation of warning flags.
+* **YELLOW** ⚠️: Triggered if $\mathbf{2}$ or more **Warning Flags** (e.g., *high\_volatility*, *poor\_risk\_return*, *extended\_decline*) are active.
+* **GREEN** ✅: No Critical or concerning Warning Flags triggered.
+
+---
+
+### 🧠 Machine Learning Models
+
+The five core metrics, alongside four other features (e.g., price momentum and volume decline), form the complete **9-feature set** used by the two predictive models.
+
+| Metric | Role as an ML Feature | Models Using the Feature |
+| :--- | :--- | :--- |
+| **Volatility** | Identifies assets with **unstable price behavior** and high risk. | Isolation Forest, Random Forest Classifier |
+| **Maximum Drawdown** | Critical for detecting assets experiencing **severe, non-recoverable losses**. | Isolation Forest, Random Forest Classifier |
+| **Sharpe Ratio** | Helps models identify **unfavorable risk-return profiles**. | Isolation Forest, Random Forest Classifier |
+| **RSI (Relative Strength Index)** | Allows models to detect **momentum patterns** and predict future risk changes. | Isolation Forest, Random Forest Classifier |
+| **Beta** | Provides context on **systematic risk** (market sensitivity). | Isolation Forest, Random Forest Classifier |
+
+#### Model Objectives and Details
+
+#### 1. Isolation Forest (Anomaly Detection)
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Core Function** | **Detecting Outliers/Anomalies.** Identifies assets whose combined feature values deviate significantly from the rest of the asset population. |
+| **Mechanism** | It works by randomly isolating samples using few splits in a tree structure. Anomalies are easier to isolate using fewer splits near the root. |
+| **Usage in Project** | **Risk Identification:** Flags assets with **unusual risk profiles** that may not be caught by simple rules. The output anomaly score informs the overall risk rating. |
+| **Strength** | Highly efficient and ideal for checking the **consistency and coherence** of the 9 risk features. |
+
+#### 2. Random Forest Classifier (Risk Prediction)
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Core Function** | **Multi-Class Classification.** Predicts whether an asset's risk rating will **maintain**, **improve**, or **deteriorate** over the next period. |
+| **Mechanism** | An **ensemble learning method** that builds multiple decision trees to create a robust, accurate prediction and avoid overfitting. |
+| **Usage in Project** | **Predictive Rating:** Uses the current 9 features to classify the asset's **future risk trend**, acting as a forward-looking alert. |
+| **Key Output** | **Feature Importance:** Ranks the 9 features based on their predictive power, revealing which financial metric is currently **driving the most risk** in the portfolio. |

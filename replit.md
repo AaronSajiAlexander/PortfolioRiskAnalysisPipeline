@@ -42,6 +42,8 @@ For users new to AI and ML, here's a simple explanation of what the 5-stage pipe
 
 **📘 For detailed beginner-friendly explanations of each stage, see `BACKEND_GUIDE_FOR_BEGINNERS.md`**
 
+**🔧 For detailed explanation of how test/mock data is created, see `MOCK_DATA_GUIDE.md`**
+
 ## System Architecture
 
 ### UI/UX Decisions
