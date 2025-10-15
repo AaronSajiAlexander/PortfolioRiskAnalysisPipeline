@@ -10,24 +10,33 @@ class MockBloombergData:
     """
     
     def __init__(self):
-        self.sectors = [
-            'Technology', 'Healthcare', 'Financial Services', 'Consumer Discretionary',
-            'Industrial', 'Energy', 'Materials', 'Utilities', 'Real Estate', 'Consumer Staples'
+        self.well_known_stocks = [
+            {'symbol': 'AAPL', 'name': 'Apple Inc.', 'sector': 'Technology'},
+            {'symbol': 'MSFT', 'name': 'Microsoft Corporation', 'sector': 'Technology'},
+            {'symbol': 'NVDA', 'name': 'NVIDIA Corporation', 'sector': 'Technology'},
+            {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'sector': 'Technology'},
+            {'symbol': 'AMZN', 'name': 'Amazon.com Inc.', 'sector': 'Consumer Discretionary'},
+            {'symbol': 'META', 'name': 'Meta Platforms Inc.', 'sector': 'Technology'},
+            {'symbol': 'IBM', 'name': 'IBM Corporation', 'sector': 'Technology'},
+            {'symbol': 'TSM', 'name': 'Taiwan Semiconductor Manufacturing', 'sector': 'Technology'},
+            {'symbol': 'JPM', 'name': 'JPMorgan Chase & Co.', 'sector': 'Financial Services'},
+            {'symbol': 'JNJ', 'name': 'Johnson & Johnson', 'sector': 'Healthcare'}
         ]
         
-        self.company_prefixes = [
-            'Global', 'Advanced', 'United', 'American', 'International', 'Pacific',
-            'National', 'Premier', 'Superior', 'Dynamic', 'Strategic', 'Innovative',
-            'First', 'Capital', 'Metro', 'Regional', 'Consolidated', 'Alliance'
+        self.risky_stocks = [
+            {'symbol': 'SERV', 'name': 'Serve Robotics Inc.', 'sector': 'Technology'},
+            {'symbol': 'EVGO', 'name': 'EVgo Inc.', 'sector': 'Energy'},
+            {'symbol': 'TDUP', 'name': 'ThredUp Inc.', 'sector': 'Consumer Discretionary'},
+            {'symbol': 'USAS', 'name': 'Americas Gold & Silver Corp.', 'sector': 'Materials'},
+            {'symbol': 'AEVA', 'name': 'Aeva Technologies Inc.', 'sector': 'Technology'},
+            {'symbol': 'ATRO', 'name': 'Astronics Corporation', 'sector': 'Industrial'},
+            {'symbol': 'QUBT', 'name': 'Quantum Computing Inc.', 'sector': 'Technology'},
+            {'symbol': 'CTRX', 'name': 'Context Therapeutics Inc.', 'sector': 'Healthcare'},
+            {'symbol': 'IKT', 'name': 'Inhibikase Therapeutics Inc.', 'sector': 'Healthcare'},
+            {'symbol': 'OKLO', 'name': 'Oklo Inc.', 'sector': 'Energy'}
         ]
         
-        self.company_suffixes = [
-            'Corp', 'Inc', 'LLC', 'Group', 'Holdings', 'Systems', 'Technologies',
-            'Solutions', 'Industries', 'Enterprises', 'Partners', 'Capital',
-            'Resources', 'Services', 'International', 'Global'
-        ]
-        
-        self.symbol_prefixes = ['A', 'B', 'C', 'D', 'G', 'M', 'N', 'P', 'R', 'S', 'T', 'V', 'X', 'Z']
+        self.all_stocks = self.well_known_stocks + self.risky_stocks
     
     def generate_asset_data(self) -> Dict[str, Any]:
         """
@@ -36,19 +45,10 @@ class MockBloombergData:
         Returns:
             Dictionary containing asset information
         """
-        # Generate company name and symbol
-        prefix = random.choice(self.company_prefixes)
-        suffix = random.choice(self.company_suffixes)
-        company_name = f"{prefix} {suffix}"
-        
-        # Generate symbol (2-4 characters)
-        symbol_length = random.choice([2, 3, 3, 4])  # Bias toward 3-character symbols
-        symbol = random.choice(self.symbol_prefixes)
-        for _ in range(symbol_length - 1):
-            symbol += random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-        
-        # Sector and basic info
-        sector = random.choice(self.sectors)
+        stock = random.choice(self.all_stocks)
+        symbol = stock['symbol']
+        company_name = stock['name']
+        sector = stock['sector']
         
         # Price data - realistic ranges based on sector
         if sector in ['Technology', 'Healthcare']:
