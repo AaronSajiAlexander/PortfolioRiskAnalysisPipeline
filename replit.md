@@ -44,6 +44,8 @@ For users new to AI and ML, here's a simple explanation of what the 5-stage pipe
 
 **🔧 For detailed explanation of how test/mock data is created, see `MOCK_DATA_GUIDE.md`**
 
+**📰 For detailed technical guide on sentiment analysis (Stage 4), see `SENTIMENT_ANALYSIS_GUIDE.md`**
+
 ## System Architecture
 
 ### UI/UX Decisions
