@@ -82,14 +82,18 @@ The generated PDF reports include comprehensive analysis across multiple section
 10. **Test Data Section**: Complete portfolio and analysis data for further analysis
 
 ### Test Data Section
-The Test Data section (added at the end of reports) provides comprehensive raw data for validation and further analysis:
-- **Complete Portfolio Data**: All assets with symbols, companies, sectors, prices, market caps, P/E ratios, and dividend yields
-- **Complete Risk Analysis Results**: All risk metrics including ratings (color-coded), volatility, max drawdown, beta, Sharpe ratio, and RSI
+The Test Data section (added at the end of reports) provides access to comprehensive data for validation and further analysis:
+
+**CSV Exports (Exported Files):**
+- **Portfolio Data CSV**: Complete portfolio dataset with symbols, companies, sectors, prices, market caps, P/E ratios, dividend yields, exchanges, and currencies
+- **Risk Analysis CSV**: Complete risk analysis results including ratings, risk scores, volatility, max drawdown, volume decline, beta, Sharpe ratio, RSI, and performance metrics (1M, 3M, 6M returns)
+
+**PDF Summary Tables (Quick Reference):**
 - **Performance Metrics Data**: Returns (1M, 3M, 6M), volume decline, and Sharpe ratios
-- **Risk Flags Details**: Detailed breakdown of which risk flags are triggered for each asset (high volatility, extreme drawdown, volume collapse, etc.)
+- **Risk Flags Details**: Detailed breakdown of which risk flags are triggered for each asset (high volatility, extreme drawdown, volume collapse, severe decline, extended decline, poor risk return, momentum breakdown)
 - **Data Summary**: Metadata about the test data generation and analysis period
 
-This section enables users to perform custom analysis, verify results, and conduct detailed reviews of all portfolio data.
+This dual approach provides both detailed CSV data for custom analysis and quick-reference tables in the PDF for immediate review.
 
 ## ML Validation System
 
