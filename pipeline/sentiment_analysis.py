@@ -102,8 +102,12 @@ class SentimentAnalysisEngine:
             days_ago = random.randint(1, days_back)
             article_date = datetime.now() - timedelta(days=days_ago)
             
+            # Generate article content based on headline sentiment
+            content = self.generate_article_content(headline, sentiment_score)
+            
             news_articles.append({
                 'headline': headline,
+                'content': content,
                 'source': random.choice(self.news_sources),
                 'published_date': article_date.isoformat(),
                 'url': f"https://example-news.com/{symbol.lower()}-{random.randint(1000, 9999)}",
@@ -167,7 +171,7 @@ class SentimentAnalysisEngine:
             sentiment_label = 'NEUTRAL'
         
         # Calculate confidence based on number of articles and consistency
-        sentiment_std = np.std(sentiment_scores)
+        sentiment_std = float(np.std(sentiment_scores))
         confidence = min(1.0, len(news_articles) / 20.0) * (1.0 - min(1.0, sentiment_std))
         
         # Key themes extraction (simulated)
@@ -209,6 +213,71 @@ class SentimentAnalysisEngine:
             'analysis_timestamp': datetime.now().isoformat()
         }
     
+    def generate_article_content(self, headline: str, sentiment_score: float) -> str:
+        """
+        Generate sample article content based on headline and sentiment
+        
+        Args:
+            headline: Article headline
+            sentiment_score: Sentiment score of the article
+            
+        Returns:
+            Article content text
+        """
+        # Sample content templates based on sentiment
+        if sentiment_score < -0.3:
+            content_templates = [
+                f"{headline}. Market analysts express concerns about the company's future prospects. "
+                f"The recent developments have raised questions among investors about long-term viability. "
+                f"Industry experts warn that these challenges could persist throughout the fiscal year.",
+                
+                f"{headline}. Shareholders reacted negatively to the announcement, with trading volumes spiking. "
+                f"The company faces mounting pressure to address these issues quickly. "
+                f"Competitors are seizing this opportunity to gain market advantage.",
+            ]
+        elif sentiment_score > 0.3:
+            content_templates = [
+                f"{headline}. Investors responded enthusiastically to the positive developments. "
+                f"The company's strategic initiatives are showing strong results and momentum. "
+                f"Analysts have raised their price targets following this announcement.",
+                
+                f"{headline}. This marks a significant milestone for the company's growth trajectory. "
+                f"Industry observers note the competitive advantages being established. "
+                f"The market outlook remains favorable as the company executes its vision.",
+            ]
+        else:
+            content_templates = [
+                f"{headline}. Market participants are monitoring the situation for further developments. "
+                f"The company maintains its guidance for the current quarter. "
+                f"Analysts continue to evaluate the potential impact on future performance.",
+            ]
+        
+        return random.choice(content_templates)
+    
+    def calculate_sentiment_from_text(self, headline: str, content: str) -> float:
+        """
+        Calculate sentiment score using TextBlob from both headline and content
+        
+        Args:
+            headline: Article headline
+            content: Article content/body
+            
+        Returns:
+            Combined sentiment score (-1.0 to 1.0)
+        """
+        # Analyze headline sentiment (weight: 40%)
+        headline_blob = TextBlob(headline)
+        headline_sentiment = float(headline_blob.sentiment.polarity)
+        
+        # Analyze content sentiment (weight: 60%)
+        content_blob = TextBlob(content)
+        content_sentiment = float(content_blob.sentiment.polarity)
+        
+        # Weighted combination (content carries more weight)
+        combined_sentiment = (0.4 * headline_sentiment) + (0.6 * content_sentiment)
+        
+        return float(combined_sentiment)
+    
     def extract_key_themes(self, news_articles: List[Dict[str, Any]]) -> List[str]:
         """
         Extract key themes from news headlines (simplified approach)
@@ -235,8 +304,11 @@ class SentimentAnalysisEngine:
         
         for article in news_articles:
             headline_lower = article['headline'].lower()
+            content_lower = article.get('content', '').lower()
+            combined_text = f"{headline_lower} {content_lower}"
+            
             for theme, keywords in theme_keywords.items():
-                if any(keyword in headline_lower for keyword in keywords):
+                if any(keyword in combined_text for keyword in keywords):
                     theme_counts[theme] += 1
         
         # Return top themes
