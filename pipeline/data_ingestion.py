@@ -251,13 +251,23 @@ class DataIngestionEngine:
             print(f"  Fetching fundamental data for {stock['symbol']}...")
             fundamental_data = self.fetch_fundamental_data(stock['symbol'])
             
+            # Track whether we got real data for both price history and fundamentals
+            has_real_price_data = bool(api_data and historical['prices'])
+            has_real_fundamentals = bool(fundamental_data and fundamental_data['shares_outstanding'])
+            
             # Use real fundamental data if available, otherwise fallback to mock
-            if fundamental_data and fundamental_data['shares_outstanding']:
+            if has_real_fundamentals:
                 shares_outstanding = fundamental_data['shares_outstanding']
-                market_cap = fundamental_data['market_cap']
                 pe_ratio = fundamental_data['pe_ratio']
                 dividend_yield = fundamental_data['dividend_yield']
-                data_quality = 1.0
+                
+                # Calculate market_cap if API didn't provide it
+                if fundamental_data['market_cap']:
+                    market_cap = fundamental_data['market_cap']
+                else:
+                    market_cap = int(current_price * shares_outstanding)
+                    print(f"  ℹ️ Calculated market cap from price × shares")
+                
                 print(f"  ✓ Real fundamentals: Market Cap ${market_cap:,}, P/E {pe_ratio}, Div Yield {dividend_yield:.2%}")
             else:
                 # Fallback to mock fundamental data
@@ -265,8 +275,15 @@ class DataIngestionEngine:
                 market_cap = int(current_price * shares_outstanding)
                 pe_ratio = metrics['pe_ratio']
                 dividend_yield = metrics['dividend_yield']
-                data_quality = 0.85 if api_data else 0.7
                 print(f"  ⚠️ Using mock fundamentals (API unavailable)")
+            
+            # Data quality score reflects both price history and fundamentals
+            if has_real_price_data and has_real_fundamentals:
+                data_quality = 1.0  # Both real
+            elif has_real_price_data or has_real_fundamentals:
+                data_quality = 0.85  # One real, one mock
+            else:
+                data_quality = 0.7  # Both mock
             
             asset_data = {
                 'symbol': stock['symbol'],
@@ -294,8 +311,10 @@ class DataIngestionEngine:
             portfolio_data.append(asset_data)
             
             # Add delay to avoid API rate limits
+            # Alpha Vantage free tier: 5 calls per minute
+            # We make 2 calls per stock (weekly data + fundamentals), so need 24 seconds between stocks
             if i < portfolio_size - 1:
-                time.sleep(12)  # Alpha Vantage free tier: 5 calls per minute
+                time.sleep(24)
         
         print(f"Successfully ingested data for {len(portfolio_data)} assets")
         return portfolio_data
