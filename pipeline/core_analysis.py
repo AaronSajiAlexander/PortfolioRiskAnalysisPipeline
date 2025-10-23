@@ -86,20 +86,20 @@ class CoreAnalysisEngine:
             else:
                 max_drawdown = 0.0
         
-        # Volume analysis
+        # Volume analysis (using weekly lookback periods: short ≈ 4 weeks, long ≈ 12 weeks)
         if len(volumes) > 0:
-            volume_ma_short = np.mean(volumes[-20:]) if len(volumes) >= 20 else np.mean(volumes)
-            volume_ma_long = np.mean(volumes[-60:]) if len(volumes) >= 60 else np.mean(volumes)
+            volume_ma_short = np.mean(volumes[-4:]) if len(volumes) >= 4 else np.mean(volumes)
+            volume_ma_long = np.mean(volumes[-12:]) if len(volumes) >= 12 else np.mean(volumes)
             volume_decline = (volume_ma_short - volume_ma_long) / volume_ma_long if volume_ma_long != 0 else 0
         else:
             volume_ma_short = 0
             volume_ma_long = 0
             volume_decline = 0
         
-        # Price momentum
-        price_change_1m = (prices[-1] - prices[-21]) / prices[-21] if len(prices) >= 21 else 0
-        price_change_3m = (prices[-1] - prices[-63]) / prices[-63] if len(prices) >= 63 else 0
-        price_change_6m = (prices[-1] - prices[-126]) / prices[-126] if len(prices) >= 126 else 0
+        # Price momentum (using weekly lookback periods: 1 month ≈ 4 weeks, 3 months ≈ 13 weeks, 6 months ≈ 26 weeks)
+        price_change_1m = (prices[-1] - prices[-4]) / prices[-4] if len(prices) >= 5 else 0
+        price_change_3m = (prices[-1] - prices[-13]) / prices[-13] if len(prices) >= 14 else 0
+        price_change_6m = (prices[-1] - prices[-26]) / prices[-26] if len(prices) >= 27 else 0
         
         # Sharpe ratio (assuming risk-free rate of 2%)
         risk_free_rate = 0.02
