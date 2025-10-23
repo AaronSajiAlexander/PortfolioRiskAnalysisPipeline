@@ -1,0 +1,118 @@
+Connecting to Alpha Vantage API...
+Fetching weekly data for 45 stocks...
+Fetching AAPL (1/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for AAPL, using fallback
+Using mock data for AAPL (converting daily to weekly)
+✓ Generated 50 weekly price points for AAPL
+Fetching MSFT (2/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for MSFT, using fallback
+Using mock data for MSFT (converting daily to weekly)
+✓ Generated 50 weekly price points for MSFT
+Fetching JNJ (3/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for JNJ, using fallback
+Using mock data for JNJ (converting daily to weekly)
+✓ Generated 50 weekly price points for JNJ
+Fetching PG (4/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for PG, using fallback
+Using mock data for PG (converting daily to weekly)
+✓ Generated 50 weekly price points for PG
+Fetching KO (5/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for KO, using fallback
+Using mock data for KO (converting daily to weekly)
+✓ Generated 50 weekly price points for KO
+Fetching V (6/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for V, using fallback
+Using mock data for V (converting daily to weekly)
+✓ Generated 50 weekly price points for V
+Fetching MA (7/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for MA, using fallback
+Using mock data for MA (converting daily to weekly)
+✓ Generated 50 weekly price points for MA
+Fetching HD (8/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for HD, using fallback
+Using mock data for HD (converting daily to weekly)
+✓ Generated 50 weekly price points for HD
+Fetching MCD (9/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for MCD, using fallback
+Using mock data for MCD (converting daily to weekly)
+✓ Generated 50 weekly price points for MCD
+Fetching UNH (10/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for UNH, using fallback
+Using mock data for UNH (converting daily to weekly)
+✓ Generated 50 weekly price points for UNH
+Fetching WMT (11/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for WMT, using fallback
+Using mock data for WMT (converting daily to weekly)
+✓ Generated 50 weekly price points for WMT
+Fetching IBM (12/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for IBM, using fallback
+Using mock data for IBM (converting daily to weekly)
+✓ Generated 50 weekly price points for IBM
+Fetching XOM (13/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for XOM, using fallback
+Using mock data for XOM (converting daily to weekly)
+✓ Generated 50 weekly price points for XOM
+Fetching CVX (14/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for CVX, using fallback
+Using mock data for CVX (converting daily to weekly)
+✓ Generated 50 weekly price points for CVX
+Fetching PEP (15/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for PEP, using fallback
+Using mock data for PEP (converting daily to weekly)
+✓ Generated 50 weekly price points for PEP
+Fetching CRM (16/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for CRM, using fallback
+Using mock data for CRM (converting daily to weekly)
+✓ Generated 50 weekly price points for CRM
+Fetching NOW (17/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for NOW, using fallback
+Using mock data for NOW (converting daily to weekly)
+✓ Generated 50 weekly price points for NOW
+Fetching SBUX (18/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for SBUX, using fallback
+Using mock data for SBUX (converting daily to weekly)
+✓ Generated 50 weekly price points for SBUX
+Fetching GM (19/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for GM, using fallback
+Using mock data for GM (converting daily to weekly)
+✓ Generated 50 weekly price points for GM
+Fetching BA (20/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for BA, using fallback
+Using mock data for BA (converting daily to weekly)
+✓ Generated 50 weekly price points for BA
+Fetching UBER (21/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for UBER, using fallback
+Using mock data for UBER (converting daily to weekly)
+✓ Generated 50 weekly price points for UBER
+Fetching LYFT (22/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for LYFT, using fallback
+Using mock data for LYFT (converting daily to weekly)
+✓ Generated 50 weekly price points for LYFT
+  Stopping...
+Fetching SNAP (23/45)...
+⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: ['Information']
+⚠️ API returned no price data for SNAP, using fallback
+Using mock data for SNAP (converting daily to weekly)
+✓ Generated 50 weekly price points for SNAP

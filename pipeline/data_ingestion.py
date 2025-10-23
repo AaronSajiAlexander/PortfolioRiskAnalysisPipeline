@@ -69,7 +69,14 @@ class DataIngestionEngine:
             return {'prices': [], 'dates': [], 'volumes': []}
         
         if 'Weekly Adjusted Time Series' not in weekly_data:
-            print(f"⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: {list(weekly_data.keys())}")
+            if 'Information' in weekly_data:
+                # Rate limit message - only print once to avoid spam
+                if not hasattr(self, '_rate_limit_warned'):
+                    print(f"⚠️ API Rate Limit: {weekly_data['Information']}")
+                    print(f"⚠️ Falling back to mock data for all remaining stocks")
+                    self._rate_limit_warned = True
+            else:
+                print(f"⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: {list(weekly_data.keys())}")
             return {'prices': [], 'dates': [], 'volumes': []}
         
         time_series = weekly_data['Weekly Adjusted Time Series']
