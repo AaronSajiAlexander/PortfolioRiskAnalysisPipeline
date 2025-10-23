@@ -81,10 +81,11 @@ class MockBloombergData:
             base_price = random.uniform(35, 200)
         
         # Volatility based on risk_category (most important for risk classification)
+        # Ranges aligned with core_analysis thresholds: GREEN ≤22%, YELLOW 22-35%, RED >35%
         if risk_category == 'GREEN':
             volatility_base = random.uniform(0.15, 0.25)  # 15-25% annualized volatility
         elif risk_category == 'YELLOW':
-            volatility_base = random.uniform(0.25, 0.38)  # 25-38% annualized volatility
+            volatility_base = random.uniform(0.25, 0.35)  # 25-35% annualized volatility (stays below RED threshold)
         else:  # RED
             volatility_base = random.uniform(0.38, 0.55)  # 38-55% annualized volatility
         
@@ -129,10 +130,11 @@ class MockBloombergData:
         mu = random.uniform(-0.05, 0.15)  # Annual drift (return)
         
         # Set volatility based on risk_category
+        # Aligned with core_analysis thresholds: GREEN ≤22%, YELLOW 22-35%, RED >35%
         if risk_category == 'GREEN':
             sigma = random.uniform(0.15, 0.25)  # Low volatility for green stocks
         elif risk_category == 'YELLOW':
-            sigma = random.uniform(0.25, 0.38)  # Medium volatility for yellow stocks
+            sigma = random.uniform(0.25, 0.35)  # Medium volatility for yellow stocks (stays below RED threshold)
         elif risk_category == 'RED':
             sigma = random.uniform(0.38, 0.55)  # High volatility for red stocks
         else:
