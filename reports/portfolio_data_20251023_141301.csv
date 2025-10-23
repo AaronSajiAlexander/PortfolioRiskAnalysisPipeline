@@ -1,0 +1,22 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+MSFT,Microsoft Corporation,Technology,520.54,863413362507,21.76,0.0169,NASDAQ,USD
+V,Visa Inc.,Financial Services,345.36,629754987547,,0.0011,NASDAQ,USD
+TSLA,Tesla Inc.,Consumer Discretionary,438.97,386484078740,14.37,0.022,NASDAQ,USD
+CRM,Salesforce Inc.,Technology,256.64,384756113891,28.18,0.0118,NASDAQ,USD
+XOM,Exxon Mobil Corporation,Energy,114.71,211929068984,26.28,0.0121,NYSE,USD
+SHOP,Shopify Inc.,Technology,162.01,196213751930,25.71,0.0,NASDAQ,USD
+PG,Procter & Gamble Co.,Consumer Staples,152.2,165655633676,23.96,0.0202,NASDAQ,USD
+UBER,Uber Technologies Inc.,Technology,92.21,164942469620,21.61,0.0182,NYSE,USD
+SQ,Block Inc.,Financial Services,137.91,147995417877,19.22,0.0,NYSE,USD
+SBUX,Starbucks Corporation,Consumer Discretionary,85.5,133730839930,22.97,0.0032,NYSE,USD
+JNJ,Johnson & Johnson,Healthcare,192.94,115822586809,22.3,0.0,NYSE,USD
+NVDA,NVIDIA Corporation,Technology,180.28,107936094298,12.62,0.0,NASDAQ,USD
+AAPL,Apple Inc.,Technology,258.45,86094844357,19.68,0.0,NYSE,USD
+BA,Boeing Co.,Industrial,216.59,54422481581,28.38,0.0,NASDAQ,USD
+GME,GameStop Corp.,Consumer Discretionary,22.49,38742000854,10.51,0.0383,NYSE,USD
+RIVN,Rivian Automotive Inc.,Consumer Discretionary,12.92,24843140074,,0.0,NASDAQ,USD
+WMT,Walmart Inc.,Consumer Staples,107.14,18700939223,,0.0271,NASDAQ,USD
+SNAP,Snap Inc.,Technology,7.77,5548603363,27.77,0.0096,NASDAQ,USD
+AMC,AMC Entertainment Holdings,Consumer Discretionary,2.75,2936363738,22.55,0.0231,NYSE,USD
+SPCE,Virgin Galactic Holdings,Industrial,3.72,2212791233,13.47,0.0,NASDAQ,USD
+BLNK,Blink Charging Co.,Energy,1.79,1909039330,,0.0307,NYSE,USD
