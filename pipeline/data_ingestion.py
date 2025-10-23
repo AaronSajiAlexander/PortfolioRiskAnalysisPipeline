@@ -85,6 +85,31 @@ class DataIngestionEngine:
             'volumes': volumes
         }
     
+    def convert_daily_to_weekly(self, daily_data: Dict[str, List]) -> Dict[str, List]:
+        """
+        Convert daily price data to weekly by sampling every 5th trading day
+        
+        Args:
+            daily_data: Dictionary with daily prices, dates, and volumes
+            
+        Returns:
+            Dictionary with weekly sampled prices, dates, and volumes
+        """
+        if not daily_data['prices'] or len(daily_data['prices']) < 5:
+            return daily_data
+        
+        # Sample every 5th day to approximate weekly data (5 trading days ≈ 1 week)
+        weekly_prices = daily_data['prices'][::5]
+        weekly_dates = daily_data['dates'][::5]
+        weekly_volumes = daily_data['volumes'][::5]
+        
+        # Limit to 50 weeks to match API data
+        return {
+            'prices': weekly_prices[-50:],
+            'dates': weekly_dates[-50:],
+            'volumes': weekly_volumes[-50:]
+        }
+    
     def calculate_metrics(self, prices: List[float], is_weekly: bool = True) -> Dict[str, Any]:
         """Calculate financial metrics from price history
         
@@ -140,15 +165,17 @@ class DataIngestionEngine:
                 historical = self.parse_weekly_data(api_data, max_weeks=50)
                 current_price = historical['prices'][-1] if historical['prices'] else random.uniform(50, 400)
             else:
-                # Fallback to mock data if API fails
-                print(f"Using mock data for {stock['symbol']}")
+                # Fallback to mock data if API fails (generates daily data, then convert to weekly)
+                print(f"Using mock data for {stock['symbol']} (converting daily to weekly)")
                 mock_asset = self.mock_data_generator.generate_asset_data_for_stock(stock)
-                historical = self.mock_data_generator.generate_historical_prices(
+                daily_historical = self.mock_data_generator.generate_historical_prices(
                     mock_asset['current_price'], days=252
                 )
+                # Convert daily to weekly to maintain consistent granularity
+                historical = self.convert_daily_to_weekly(daily_historical)
                 current_price = mock_asset['current_price']
             
-            # Calculate metrics (weekly data)
+            # Calculate metrics (always weekly data now, whether from API or converted fallback)
             metrics = self.calculate_metrics(historical['prices'], is_weekly=True)
             
             # Estimate market cap

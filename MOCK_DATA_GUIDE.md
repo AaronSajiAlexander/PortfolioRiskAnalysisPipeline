@@ -1,6 +1,6 @@
 # Real-Time Stock Data Integration Guide
 
-This guide explains how the portfolio risk analysis application now uses real-time stock market data from Alpha Vantage API.
+This guide explains how the portfolio risk analysis application uses real-time weekly stock market data from Alpha Vantage API.
 
 ---
 
@@ -8,32 +8,43 @@ This guide explains how the portfolio risk analysis application now uses real-ti
 
 ### The Current System
 
-This application now fetches **real market data** from the Alpha Vantage API for all 20 stocks:
+This application fetches **real weekly market data** from the Alpha Vantage API for **45 stocks** across three risk categories:
 
-- **Real stock symbols**: AAPL, MSFT, NVDA, GOOGL, AMZN, META, IBM, TSM, JPM, JNJ, SERV, EVGO, TDUP, USAS, AEVA, ATRO, QUBT, CTRX, IKT, OKLO
-- **Real intraday prices**: 5-minute interval data from actual trading
-- **Real trading volumes**: Actual market activity
-- **Live data**: Updated throughout the trading day
+**Green Stocks (Low Risk) - 15 tickers:**
+- AAPL, MSFT, JNJ, PG, KO, V, MA, HD, MCD, UNH, WMT, IBM, XOM, CVX, PEP
+
+**Yellow Stocks (Medium Risk) - 15 tickers:**
+- CRM, NOW, SBUX, GM, BA, UBER, LYFT, SNAP, TWLO, ZM, DOCU, SHOP, SQ, PLUG, ETSY
+
+**Red Stocks (High Risk) - 15 tickers:**
+- TSLA, NVDA, AMD, BYND, GME, AMC, FUBO, NKLA, WKHS, PLTR, RIVN, SPCE, FCEL, FHTX, BLNK
 
 ### How It Works
 
-The system connects to Alpha Vantage's free API to fetch:
-1. Intraday 5-minute price data for each stock
-2. Open, high, low, close prices
-3. Trading volumes
-4. Recent historical data
+The system connects to Alpha Vantage's API using the `TIME_SERIES_WEEKLY_ADJUSTED` endpoint:
 
-This data is then:
-- Aggregated into daily historical prices
-- Used to calculate real volatility metrics
-- Analyzed for actual risk patterns
-- Displayed in the risk analysis pipeline
+**API Endpoint:**
+```
+https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=AAPL&apikey=XH5DTCIKQMS1C26Z
+```
+
+**Data Retrieved:**
+1. Weekly adjusted close prices (50 weeks of historical data)
+2. Weekly trading volumes
+3. Dividend adjustments
+4. Stock splits adjustments
+
+**Processing:**
+- Limited to 50 weeks of historical data per stock
+- Volatility calculated using weekly returns (annualized with √52 factor)
+- Real price movements and patterns analyzed
+- Risk metrics computed from actual market data
 
 ### API Rate Limits
 
 **Important**: The free Alpha Vantage API has rate limits:
 - **5 API calls per minute** maximum
-- **Fetching 20 stocks takes ~4 minutes** (12-second delay between calls)
+- **Fetching 45 stocks takes ~9 minutes** (12-second delay between calls)
 - This ensures we stay within rate limits
 - Fallback to simulated data if API fails
 
@@ -43,6 +54,21 @@ If the API is unavailable or rate-limited:
 - The system automatically uses simulated data
 - Ensures the pipeline continues to work
 - Data quality score indicates if real or simulated data was used
+
+### Why Weekly Data?
+
+**Advantages:**
+1. **Less API calls**: One call per stock instead of multiple
+2. **Longer history**: 50 weeks ≈ 1 year of market data
+3. **Better for risk analysis**: Weekly data smooths out daily noise
+4. **Dividend adjusted**: Accounts for dividend payments and stock splits
+5. **Reduced rate limiting**: Easier to stay within free tier limits
+
+**Volatility Calculation:**
+```python
+weekly_returns = (price[week] - price[week-1]) / price[week-1]
+annualized_volatility = std_deviation(weekly_returns) × √52
+```
 
 ---
 
@@ -54,15 +80,17 @@ The entire mock data system is contained in a single Python class called `MockBl
 
 **Location**: `utils/mock_data.py`
 
-**What it creates:**
+**What it creates (as fallback when API fails):**
 1. Individual asset/stock information
-2. Historical price data (6-12 months of daily prices)
+2. Historical price data (daily prices converted to weekly format)
 3. Trading volumes
 4. Market index data (S&P 500, NASDAQ, Dow Jones)
 5. Economic indicators (interest rates, GDP, inflation)
 6. News headlines for sentiment analysis
 
-Let's break down each one.
+**Note**: The primary data source is now the Alpha Vantage API (weekly data). Mock data is only used when the API is unavailable or rate-limited. When mock data is used, it generates 252 days of daily prices which are then converted to ~50 weeks of weekly data (by sampling every 5th trading day) to maintain consistent data granularity throughout the pipeline.
+
+Let's break down each component.
 
 ---
 
@@ -70,41 +98,69 @@ Let's break down each one.
 
 ### What Gets Created
 
-The system now uses **20 real stock symbols** from actual companies:
+The system now uses **45 real stock symbols** from actual companies, categorized by risk level:
 
-**10 Well-Known Stocks:**
+**15 Green Stocks (Low Risk - Blue Chip):**
 - AAPL - Apple Inc. (Technology)
 - MSFT - Microsoft Corporation (Technology)
-- NVDA - NVIDIA Corporation (Technology)
-- GOOGL - Alphabet Inc. (Technology)
-- AMZN - Amazon.com Inc. (Consumer Discretionary)
-- META - Meta Platforms Inc. (Technology)
-- IBM - IBM Corporation (Technology)
-- TSM - Taiwan Semiconductor Manufacturing (Technology)
-- JPM - JPMorgan Chase & Co. (Financial Services)
 - JNJ - Johnson & Johnson (Healthcare)
+- PG - Procter & Gamble Co. (Consumer Staples)
+- KO - Coca-Cola Co. (Consumer Staples)
+- V - Visa Inc. (Financial Services)
+- MA - Mastercard Inc. (Financial Services)
+- HD - Home Depot Inc. (Consumer Discretionary)
+- MCD - McDonald's Corporation (Consumer Discretionary)
+- UNH - UnitedHealth Group Inc. (Healthcare)
+- WMT - Walmart Inc. (Consumer Staples)
+- IBM - IBM Corporation (Technology)
+- XOM - Exxon Mobil Corporation (Energy)
+- CVX - Chevron Corporation (Energy)
+- PEP - PepsiCo Inc. (Consumer Staples)
 
-**10 Risky/Small-Cap Stocks:**
-- SERV - Serve Robotics Inc. (Technology)
-- EVGO - EVgo Inc. (Energy)
-- TDUP - ThredUp Inc. (Consumer Discretionary)
-- USAS - Americas Gold & Silver Corp. (Materials)
-- AEVA - Aeva Technologies Inc. (Technology)
-- ATRO - Astronics Corporation (Industrial)
-- QUBT - Quantum Computing Inc. (Technology)
-- CTRX - Context Therapeutics Inc. (Healthcare)
-- IKT - Inhibikase Therapeutics Inc. (Healthcare)
-- OKLO - Oklo Inc. (Energy)
+**15 Yellow Stocks (Medium Risk - Growth):**
+- CRM - Salesforce Inc. (Technology)
+- NOW - ServiceNow Inc. (Technology)
+- SBUX - Starbucks Corporation (Consumer Discretionary)
+- GM - General Motors Co. (Consumer Discretionary)
+- BA - Boeing Co. (Industrial)
+- UBER - Uber Technologies Inc. (Technology)
+- LYFT - Lyft Inc. (Technology)
+- SNAP - Snap Inc. (Technology)
+- TWLO - Twilio Inc. (Technology)
+- ZM - Zoom Video Communications (Technology)
+- DOCU - DocuSign Inc. (Technology)
+- SHOP - Shopify Inc. (Technology)
+- SQ - Block Inc. (Financial Services)
+- PLUG - Plug Power Inc. (Energy)
+- ETSY - Etsy Inc. (Consumer Discretionary)
+
+**15 Red Stocks (High Risk - Volatile):**
+- TSLA - Tesla Inc. (Consumer Discretionary)
+- NVDA - NVIDIA Corporation (Technology)
+- AMD - Advanced Micro Devices Inc. (Technology)
+- BYND - Beyond Meat Inc. (Consumer Staples)
+- GME - GameStop Corp. (Consumer Discretionary)
+- AMC - AMC Entertainment Holdings (Consumer Discretionary)
+- FUBO - fuboTV Inc. (Technology)
+- NKLA - Nikola Corporation (Consumer Discretionary)
+- WKHS - Workhorse Group Inc. (Consumer Discretionary)
+- PLTR - Palantir Technologies Inc. (Technology)
+- RIVN - Rivian Automotive Inc. (Consumer Discretionary)
+- SPCE - Virgin Galactic Holdings (Industrial)
+- FCEL - FuelCell Energy Inc. (Energy)
+- FHTX - Foghorn Therapeutics Inc. (Healthcare)
+- BLNK - Blink Charging Co. (Energy)
 
 ### How Stock Selection Works
 
 **Process:**
-1. User selects portfolio size (1-20 stocks)
-2. System randomly selects that many stocks from the pool of 20
-3. Each stock is unique - no duplicates in a portfolio
-4. System generates mock price and historical data for each selected stock
+1. Portfolio size is fixed at 45 stocks (all stocks analyzed)
+2. System fetches weekly data for all 45 stocks from Alpha Vantage API
+3. Each stock is categorized by risk (Green/Yellow/Red)
+4. Real historical weekly price data used when available
+5. If API fails: generates daily mock data, then converts to weekly (every 5th day)
 
-**Result**: Real company names and symbols with simulated market data.
+**Result**: Real company names and symbols with actual weekly market data from Alpha Vantage. All data is in weekly format for consistent analysis across the pipeline.
 
 ### How Prices Are Determined
 
