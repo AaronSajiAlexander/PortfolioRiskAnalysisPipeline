@@ -1,0 +1,46 @@
+symbol,sector,risk_rating,risk_score,volatility,max_drawdown,volume_decline,beta,sharpe_ratio,rsi,price_change_1m,price_change_3m,price_change_6m
+AAPL,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+MSFT,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+JNJ,Healthcare,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+PG,Consumer Staples,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+KO,Consumer Staples,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+V,Financial Services,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+MA,Financial Services,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+HD,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+MCD,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+UNH,Healthcare,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+WMT,Consumer Staples,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+IBM,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+XOM,Energy,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+CVX,Energy,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+PEP,Consumer Staples,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+CRM,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+NOW,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+SBUX,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+GM,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+BA,Industrial,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+UBER,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+LYFT,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+SNAP,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+TWLO,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+ZM,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+DOCU,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+SHOP,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+SQ,Financial Services,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+PLUG,Energy,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+ETSY,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+TSLA,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+NVDA,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+AMD,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+BYND,Consumer Staples,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+GME,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+AMC,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+FUBO,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+NKLA,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+WKHS,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+PLTR,Technology,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+RIVN,Consumer Discretionary,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+SPCE,Industrial,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+FCEL,Energy,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+FHTX,Healthcare,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0
+BLNK,Energy,GREEN,0,0.0,0.0,0,1.0,0,50.0,0,0,0

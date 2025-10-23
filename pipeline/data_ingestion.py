@@ -64,7 +64,12 @@ class DataIngestionEngine:
         Returns:
             Dictionary with weekly prices, dates, and volumes
         """
-        if not weekly_data or 'Weekly Adjusted Time Series' not in weekly_data:
+        if not weekly_data:
+            print(f"⚠️ No API data received")
+            return {'prices': [], 'dates': [], 'volumes': []}
+        
+        if 'Weekly Adjusted Time Series' not in weekly_data:
+            print(f"⚠️ API response missing 'Weekly Adjusted Time Series'. Keys: {list(weekly_data.keys())}")
             return {'prices': [], 'dates': [], 'volumes': []}
         
         time_series = weekly_data['Weekly Adjusted Time Series']
@@ -164,7 +169,13 @@ class DataIngestionEngine:
             if api_data:
                 historical = self.parse_weekly_data(api_data, max_weeks=50)
                 current_price = historical['prices'][-1] if historical['prices'] else random.uniform(50, 400)
+                if not historical['prices']:
+                    print(f"⚠️ API returned no price data for {stock['symbol']}, using fallback")
             else:
+                historical = {'prices': [], 'dates': [], 'volumes': []}
+            
+            # Use fallback if API didn't provide data
+            if not historical['prices']:
                 # Fallback to mock data if API fails (generates daily data, then convert to weekly)
                 print(f"Using mock data for {stock['symbol']} (converting daily to weekly)")
                 mock_asset = self.mock_data_generator.generate_asset_data_for_stock(stock)
@@ -174,6 +185,7 @@ class DataIngestionEngine:
                 # Convert daily to weekly to maintain consistent granularity
                 historical = self.convert_daily_to_weekly(daily_historical)
                 current_price = mock_asset['current_price']
+                print(f"✓ Generated {len(historical['prices'])} weekly price points for {stock['symbol']}")
             
             # Calculate metrics (always weekly data now, whether from API or converted fallback)
             metrics = self.calculate_metrics(historical['prices'], is_weekly=True)
