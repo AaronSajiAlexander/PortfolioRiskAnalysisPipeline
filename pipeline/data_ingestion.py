@@ -215,9 +215,11 @@ class DataIngestionEngine:
                 'exchange': random.choice(['NYSE', 'NASDAQ']),
                 'country': 'United States',
                 'data_ingestion_timestamp': datetime.now().isoformat(),
-                'historical_prices': historical['prices'][-252:] if len(historical['prices']) > 252 else historical['prices'],
-                'historical_dates': historical['dates'][-252:] if len(historical['dates']) > 252 else historical['dates'],
-                'trading_volume_history': historical['volumes'][-252:] if len(historical['volumes']) > 252 else historical['volumes'],
+                'historical_prices': historical['prices'][-52:] if len(historical['prices']) > 52 else historical['prices'],
+                'historical_dates': historical['dates'][-52:] if len(historical['dates']) > 52 else historical['dates'],
+                'trading_volume_history': historical['volumes'][-52:] if len(historical['volumes']) > 52 else historical['volumes'],
+                'data_cadence': 'weekly',
+                'weeks_of_data': len(historical['prices']),
                 'bloomberg_id': f"BBG{random.randint(100000000, 999999999)}",
                 'data_quality_score': 1.0 if api_data else 0.85
             }

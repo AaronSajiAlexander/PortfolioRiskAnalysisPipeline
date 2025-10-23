@@ -12,9 +12,10 @@ class CoreAnalysisEngine:
     """
     
     def __init__(self):
+        # Risk thresholds calibrated for weekly data
         self.risk_thresholds = {
-            'volatility_red': 0.4,      # 40% annualized volatility
-            'volatility_yellow': 0.25,   # 25% annualized volatility
+            'volatility_red': 0.35,      # 35% annualized volatility (RED threshold)
+            'volatility_yellow': 0.22,   # 22% annualized volatility (YELLOW threshold)
             'drawdown_red': -0.2,        # -20% maximum drawdown
             'drawdown_yellow': -0.1,     # -10% maximum drawdown
             'volume_decline_red': -0.5,  # -50% volume decline
@@ -97,6 +98,7 @@ class CoreAnalysisEngine:
             volume_decline = 0
         
         # Price momentum (using weekly lookback periods: 1 month ≈ 4 weeks, 3 months ≈ 13 weeks, 6 months ≈ 26 weeks)
+        # Compare current price (index -1) to price N weeks ago (index -(N+1))
         price_change_1m = (prices[-1] - prices[-5]) / prices[-5] if len(prices) >= 5 else 0
         price_change_3m = (prices[-1] - prices[-14]) / prices[-14] if len(prices) >= 14 else 0
         price_change_6m = (prices[-1] - prices[-27]) / prices[-27] if len(prices) >= 27 else 0
@@ -122,15 +124,15 @@ class CoreAnalysisEngine:
         # Overall risk rating
         risk_rating = self.determine_risk_rating(risk_flags)
         
-        # Debug logging for first few stocks to understand data quality
-        if len(prices) < 10:
-            print(f"⚠️  {asset_data['symbol']}: Only {len(prices)} price points - insufficient data")
+        # Debug logging for data quality and risk detection
+        if len(prices) < 26:
+            print(f"⚠️  {asset_data['symbol']}: Only {len(prices)} weeks of data (need 26+ for full analysis)")
         
-        # Log stocks that should be risky but aren't flagged
-        expected_risky = ['TSLA', 'NVDA', 'AMD', 'GME', 'AMC', 'BYND', 'NKLA', 'RIVN', 'SPCE']
-        if asset_data['symbol'] in expected_risky:
-            print(f"🔍 {asset_data['symbol']}: vol={volatility:.3f}, drawdown={max_drawdown:.3f}, "
-                  f"rating={risk_rating}, flags={sum(risk_flags.values())}, prices={len(prices)}")
+        # Log all RED and YELLOW ratings to verify detection is working
+        if risk_rating in ['RED', 'YELLOW']:
+            flag_summary = ', '.join([k for k, v in risk_flags.items() if v])
+            print(f"🚩 {risk_rating} FLAG: {asset_data['symbol']} - vol={volatility:.2%}, "
+                  f"drawdown={max_drawdown:.2%}, flags=[{flag_summary}], weeks={len(prices)}")
         
         return {
             'symbol': asset_data['symbol'],

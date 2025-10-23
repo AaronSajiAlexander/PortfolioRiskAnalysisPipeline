@@ -209,6 +209,12 @@ class SentimentAnalysisEngine:
             'older_sentiment': older_sentiment,
             'sentiment_volatility': sentiment_std,
             
+            # Weekly analysis context (from core analysis)
+            'weekly_volatility': asset.get('volatility', 0),
+            'weekly_max_drawdown': asset.get('max_drawdown', 0),
+            'weekly_price_change_1m': asset.get('price_change_1m', 0),
+            'weekly_sharpe_ratio': asset.get('sharpe_ratio', 0),
+            
             # Analysis timestamp
             'analysis_timestamp': datetime.now().isoformat()
         }
