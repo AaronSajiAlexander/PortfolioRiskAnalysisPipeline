@@ -66,20 +66,35 @@ class CoreAnalysisEngine:
         prices = np.array(asset_data['historical_prices'])
         volumes = np.array(asset_data['trading_volume_history'])
         
-        # Calculate key metrics
-        returns = np.diff(prices) / prices[:-1]
-        volatility = np.std(returns) * np.sqrt(252)  # Annualized volatility
-        
-        # Maximum drawdown calculation
-        cumulative_returns = np.cumprod(1 + returns)
-        running_max = np.maximum.accumulate(cumulative_returns)
-        drawdown = (cumulative_returns - running_max) / running_max
-        max_drawdown = np.min(drawdown)
+        # Safety check for empty or single-element price arrays
+        if len(prices) < 2:
+            # Insufficient data - return zero metrics
+            returns = np.array([])
+            volatility = 0.0
+            max_drawdown = 0.0
+        else:
+            # Calculate key metrics
+            returns = np.diff(prices) / prices[:-1]
+            volatility = np.std(returns) * np.sqrt(252)  # Annualized volatility
+            
+            # Maximum drawdown calculation
+            if len(returns) > 0:
+                cumulative_returns = np.cumprod(1 + returns)
+                running_max = np.maximum.accumulate(cumulative_returns)
+                drawdown = (cumulative_returns - running_max) / running_max
+                max_drawdown = np.min(drawdown) if len(drawdown) > 0 else 0.0
+            else:
+                max_drawdown = 0.0
         
         # Volume analysis
-        volume_ma_short = np.mean(volumes[-20:])  # 20-day average
-        volume_ma_long = np.mean(volumes[-60:])   # 60-day average
-        volume_decline = (volume_ma_short - volume_ma_long) / volume_ma_long if volume_ma_long != 0 else 0
+        if len(volumes) > 0:
+            volume_ma_short = np.mean(volumes[-20:]) if len(volumes) >= 20 else np.mean(volumes)
+            volume_ma_long = np.mean(volumes[-60:]) if len(volumes) >= 60 else np.mean(volumes)
+            volume_decline = (volume_ma_short - volume_ma_long) / volume_ma_long if volume_ma_long != 0 else 0
+        else:
+            volume_ma_short = 0
+            volume_ma_long = 0
+            volume_decline = 0
         
         # Price momentum
         price_change_1m = (prices[-1] - prices[-21]) / prices[-21] if len(prices) >= 21 else 0
@@ -88,8 +103,11 @@ class CoreAnalysisEngine:
         
         # Sharpe ratio (assuming risk-free rate of 2%)
         risk_free_rate = 0.02
-        excess_returns = np.mean(returns) * 252 - risk_free_rate
-        sharpe_ratio = excess_returns / volatility if volatility != 0 else 0
+        if len(returns) > 0:
+            excess_returns = np.mean(returns) * 252 - risk_free_rate
+            sharpe_ratio = excess_returns / volatility if volatility != 0 else 0
+        else:
+            sharpe_ratio = 0
         
         # Technical indicators
         rsi = self.calculate_rsi(prices)
