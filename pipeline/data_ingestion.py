@@ -53,6 +53,56 @@ class DataIngestionEngine:
             print(f"Error fetching data for {symbol}: {str(e)}")
             return None
     
+    def fetch_fundamental_data(self, symbol: str) -> Dict[str, Any] | None:
+        """
+        Fetch fundamental data from Alpha Vantage API (OVERVIEW function)
+        
+        Args:
+            symbol: Stock ticker symbol
+            
+        Returns:
+            Dictionary with fundamental data or None if error
+        """
+        params = {
+            'function': 'OVERVIEW',
+            'symbol': symbol,
+            'apikey': self.api_key
+        }
+        
+        try:
+            response = requests.get(self.base_url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            
+            # Check for API errors
+            if 'Error Message' in data:
+                print(f"API Error (fundamentals) for {symbol}: {data['Error Message']}")
+                return None
+            if 'Note' in data:
+                print(f"API Rate Limit (fundamentals) for {symbol}")
+                return None
+            
+            # Check if data is empty (invalid symbol)
+            if not data or 'Symbol' not in data:
+                print(f"No fundamental data available for {symbol}")
+                return None
+            
+            # Extract key fundamentals
+            fundamentals = {
+                'shares_outstanding': int(data.get('SharesOutstanding', 0)) if data.get('SharesOutstanding') not in [None, 'None', ''] else None,
+                'market_cap': int(data.get('MarketCapitalization', 0)) if data.get('MarketCapitalization') not in [None, 'None', ''] else None,
+                'pe_ratio': float(data.get('PERatio', 0)) if data.get('PERatio') not in [None, 'None', '-'] else None,
+                'dividend_yield': float(data.get('DividendYield', 0)) if data.get('DividendYield') not in [None, 'None', ''] else 0.0,
+                'eps': float(data.get('EPS', 0)) if data.get('EPS') not in [None, 'None', '-'] else None,
+                'beta': float(data.get('Beta', 0)) if data.get('Beta') not in [None, 'None', '-'] else None
+            }
+            
+            return fundamentals
+            
+        except Exception as e:
+            print(f"Error fetching fundamental data for {symbol}: {str(e)}")
+            return None
+    
     def parse_weekly_data(self, weekly_data: Dict, max_weeks: int = 50) -> Dict[str, List]:
         """
         Parse weekly adjusted data from Alpha Vantage API
@@ -132,8 +182,8 @@ class DataIngestionEngine:
         if not prices or len(prices) < 2:
             return {
                 'volatility': 0.20,
-                'pe_ratio': None,
-                'dividend_yield': 0.0
+                'pe_ratio': random.uniform(10, 30) if random.random() > 0.2 else None,
+                'dividend_yield': random.uniform(0, 0.05) if random.random() > 0.4 else 0.0
             }
         
         returns = np.diff(prices) / prices[:-1]
@@ -197,19 +247,36 @@ class DataIngestionEngine:
             # Calculate metrics (always weekly data now, whether from API or converted fallback)
             metrics = self.calculate_metrics(historical['prices'], is_weekly=True)
             
-            # Estimate market cap
-            shares_outstanding = random.randint(50_000_000, 2_000_000_000)
-            market_cap = current_price * shares_outstanding
+            # Fetch fundamental data from Alpha Vantage (real data!)
+            print(f"  Fetching fundamental data for {stock['symbol']}...")
+            fundamental_data = self.fetch_fundamental_data(stock['symbol'])
+            
+            # Use real fundamental data if available, otherwise fallback to mock
+            if fundamental_data and fundamental_data['shares_outstanding']:
+                shares_outstanding = fundamental_data['shares_outstanding']
+                market_cap = fundamental_data['market_cap']
+                pe_ratio = fundamental_data['pe_ratio']
+                dividend_yield = fundamental_data['dividend_yield']
+                data_quality = 1.0
+                print(f"  ✓ Real fundamentals: Market Cap ${market_cap:,}, P/E {pe_ratio}, Div Yield {dividend_yield:.2%}")
+            else:
+                # Fallback to mock fundamental data
+                shares_outstanding = random.randint(50_000_000, 2_000_000_000)
+                market_cap = int(current_price * shares_outstanding)
+                pe_ratio = metrics['pe_ratio']
+                dividend_yield = metrics['dividend_yield']
+                data_quality = 0.85 if api_data else 0.7
+                print(f"  ⚠️ Using mock fundamentals (API unavailable)")
             
             asset_data = {
                 'symbol': stock['symbol'],
                 'company_name': stock['name'],
                 'sector': stock['sector'],
                 'current_price': round(current_price, 2),
-                'market_cap': int(market_cap),
+                'market_cap': int(market_cap) if market_cap else None,
                 'shares_outstanding': shares_outstanding,
-                'pe_ratio': round(metrics['pe_ratio'], 2) if metrics['pe_ratio'] else None,
-                'dividend_yield': round(metrics['dividend_yield'], 4),
+                'pe_ratio': round(pe_ratio, 2) if pe_ratio else None,
+                'dividend_yield': round(dividend_yield, 4),
                 'volatility_base': metrics['volatility'],
                 'currency': 'USD',
                 'exchange': random.choice(['NYSE', 'NASDAQ']),
@@ -221,7 +288,7 @@ class DataIngestionEngine:
                 'data_cadence': 'weekly',
                 'weeks_of_data': len(historical['prices']),
                 'bloomberg_id': f"BBG{random.randint(100000000, 999999999)}",
-                'data_quality_score': 1.0 if api_data else 0.85
+                'data_quality_score': data_quality
             }
             
             portfolio_data.append(asset_data)
