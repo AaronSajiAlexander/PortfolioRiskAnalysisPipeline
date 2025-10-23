@@ -33,11 +33,11 @@ def main():
     # Sidebar for pipeline controls
     st.sidebar.header("Pipeline Controls")
 
-    # Fixed portfolio size (all 45 stocks: 15 red, 15 yellow, 15 green)
-    portfolio_size = 45
+    # Fixed portfolio size (all 21 stocks: 7 red, 7 yellow, 7 green)
+    portfolio_size = 21
     st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks")
-    st.sidebar.success("✅ 15 Green (low risk) | 15 Yellow (medium) | 15 Red (high)")
-    st.sidebar.warning("⏱️ Weekly data fetch: ~9 minutes (API rate limits)")
+    st.sidebar.success("✅ 7 Green (low risk) | 7 Yellow (medium) | 7 Red (high)")
+    st.sidebar.warning("⏱️ Weekly data fetch: ~4 minutes (API rate limits)")
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",

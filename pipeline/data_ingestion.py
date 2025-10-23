@@ -16,7 +16,7 @@ class DataIngestionEngine:
     def __init__(self):
         self.mock_data_generator = MockBloombergData()
         self.connection_status = "Connected"
-        self.api_key = "XH5DTCIKQMS1C26Z"
+        self.api_key = "7FO8T0CSCBEPUNCV"
         self.base_url = "https://www.alphavantage.co/query"
     
     def fetch_weekly_data(self, symbol: str) -> Dict[str, Any] | None:
