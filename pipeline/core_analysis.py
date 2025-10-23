@@ -75,7 +75,7 @@ class CoreAnalysisEngine:
         else:
             # Calculate key metrics
             returns = np.diff(prices) / prices[:-1]
-            volatility = np.std(returns) * np.sqrt(252)  # Annualized volatility
+            volatility = np.std(returns) * np.sqrt(52)  # Annualized volatility for weekly data
             
             # Maximum drawdown calculation
             if len(returns) > 0:
@@ -104,7 +104,7 @@ class CoreAnalysisEngine:
         # Sharpe ratio (assuming risk-free rate of 2%)
         risk_free_rate = 0.02
         if len(returns) > 0:
-            excess_returns = np.mean(returns) * 252 - risk_free_rate
+            excess_returns = np.mean(returns) * 52 - risk_free_rate  # Annualize using 52 weeks
             sharpe_ratio = excess_returns / volatility if volatility != 0 else 0
         else:
             sharpe_ratio = 0
@@ -121,6 +121,16 @@ class CoreAnalysisEngine:
         
         # Overall risk rating
         risk_rating = self.determine_risk_rating(risk_flags)
+        
+        # Debug logging for first few stocks to understand data quality
+        if len(prices) < 10:
+            print(f"⚠️  {asset_data['symbol']}: Only {len(prices)} price points - insufficient data")
+        
+        # Log stocks that should be risky but aren't flagged
+        expected_risky = ['TSLA', 'NVDA', 'AMD', 'GME', 'AMC', 'BYND', 'NKLA', 'RIVN', 'SPCE']
+        if asset_data['symbol'] in expected_risky:
+            print(f"🔍 {asset_data['symbol']}: vol={volatility:.3f}, drawdown={max_drawdown:.3f}, "
+                  f"rating={risk_rating}, flags={sum(risk_flags.values())}, prices={len(prices)}")
         
         return {
             'symbol': asset_data['symbol'],

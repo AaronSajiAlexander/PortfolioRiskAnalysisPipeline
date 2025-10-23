@@ -1,0 +1,46 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+TSLA,Tesla Inc.,Consumer Discretionary,355.26,674514489239,,0.0,NASDAQ,USD
+TWLO,Twilio Inc.,Technology,357.41,653459187655,,0.0,NYSE,USD
+BLNK,Blink Charging Co.,Energy,336.95,648359490503,,0.0,NASDAQ,USD
+CRM,Salesforce Inc.,Technology,304.08,580571864812,,0.0,NASDAQ,USD
+PEP,PepsiCo Inc.,Consumer Staples,283.58,563782811199,,0.0,NASDAQ,USD
+DOCU,DocuSign Inc.,Technology,274.88,495137736014,,0.0,NASDAQ,USD
+ETSY,Etsy Inc.,Consumer Discretionary,349.3,421875970039,,0.0,NASDAQ,USD
+MA,Mastercard Inc.,Financial Services,266.57,372440569698,,0.0,NYSE,USD
+FHTX,Foghorn Therapeutics Inc.,Healthcare,332.7,370992719834,,0.0,NYSE,USD
+GM,General Motors Co.,Consumer Discretionary,315.59,366747807312,,0.0,NASDAQ,USD
+ZM,Zoom Video Communications,Technology,206.08,323655302790,,0.0,NASDAQ,USD
+SBUX,Starbucks Corporation,Consumer Discretionary,275.01,315025228286,,0.0,NYSE,USD
+PLTR,Palantir Technologies Inc.,Technology,249.31,277786028072,,0.0,NYSE,USD
+FCEL,FuelCell Energy Inc.,Energy,311.8,271719653637,,0.0,NASDAQ,USD
+LYFT,Lyft Inc.,Technology,342.9,238615035972,,0.0,NYSE,USD
+IBM,IBM Corporation,Technology,121.82,237338170165,,0.0,NASDAQ,USD
+BA,Boeing Co.,Industrial,197.0,202186796778,,0.0,NYSE,USD
+SNAP,Snap Inc.,Technology,282.42,199162944673,,0.0,NASDAQ,USD
+NVDA,NVIDIA Corporation,Technology,337.43,198366264955,,0.0,NASDAQ,USD
+SPCE,Virgin Galactic Holdings,Industrial,136.05,192077250762,,0.0,NYSE,USD
+MSFT,Microsoft Corporation,Technology,356.73,189847675135,,0.0,NYSE,USD
+KO,Coca-Cola Co.,Consumer Staples,324.07,188467551996,,0.0,NYSE,USD
+AMD,Advanced Micro Devices Inc.,Technology,151.47,178613833600,,0.0,NYSE,USD
+PLUG,Plug Power Inc.,Energy,97.79,175146531014,,0.0,NASDAQ,USD
+JNJ,Johnson & Johnson,Healthcare,121.97,167671785901,,0.0,NASDAQ,USD
+PG,Procter & Gamble Co.,Consumer Staples,144.31,149478271920,,0.0,NYSE,USD
+CVX,Chevron Corporation,Energy,300.19,147157045728,,0.0,NYSE,USD
+XOM,Exxon Mobil Corporation,Energy,146.48,140264474195,,0.0,NASDAQ,USD
+NKLA,Nikola Corporation,Consumer Discretionary,199.7,129246164313,,0.0,NYSE,USD
+AAPL,Apple Inc.,Technology,230.81,127938450131,,0.0,NASDAQ,USD
+GME,GameStop Corp.,Consumer Discretionary,58.96,116160196574,,0.0,NYSE,USD
+WMT,Walmart Inc.,Consumer Staples,353.86,110281537571,,0.0,NASDAQ,USD
+SQ,Block Inc.,Financial Services,288.69,107810269950,,0.0,NASDAQ,USD
+RIVN,Rivian Automotive Inc.,Consumer Discretionary,91.65,88594113494,,0.0,NASDAQ,USD
+AMC,AMC Entertainment Holdings,Consumer Discretionary,251.37,85463852785,,0.0,NASDAQ,USD
+UBER,Uber Technologies Inc.,Technology,222.29,74172116318,,0.0,NASDAQ,USD
+HD,Home Depot Inc.,Consumer Discretionary,149.69,66774613786,,0.0,NASDAQ,USD
+FUBO,fuboTV Inc.,Technology,235.46,42859917540,,0.0,NYSE,USD
+SHOP,Shopify Inc.,Technology,112.82,42233316318,,0.0,NYSE,USD
+UNH,UnitedHealth Group Inc.,Healthcare,176.67,40395553996,,0.0,NASDAQ,USD
+NOW,ServiceNow Inc.,Technology,189.59,37141202523,,0.0,NASDAQ,USD
+V,Visa Inc.,Financial Services,51.78,26209534123,,0.0,NASDAQ,USD
+WKHS,Workhorse Group Inc.,Consumer Discretionary,222.47,23419458243,,0.0,NYSE,USD
+BYND,Beyond Meat Inc.,Consumer Staples,314.55,22100868004,,0.0,NYSE,USD
+MCD,McDonald's Corporation,Consumer Discretionary,80.65,8584346859,,0.0,NYSE,USD
