@@ -37,7 +37,7 @@ def main():
     portfolio_size = 21
     st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks")
     st.sidebar.success("✅ 7 Green (low risk) | 7 Yellow (medium) | 7 Red (high)")
-    st.sidebar.warning("⏱️ Weekly data fetch: ~4 minutes (API rate limits)")
+    st.sidebar.warning("⏱️ Data fetch time: ~8 minutes (weekly prices + fundamentals)")
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",
