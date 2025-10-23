@@ -196,22 +196,25 @@ class CoreAnalysisEngine:
         Returns:
             Risk rating: 'RED', 'YELLOW', or 'GREEN'
         """
-        critical_flags = ['extreme_drawdown', 'volume_collapse', 'severe_decline']
-        warning_flags = ['high_volatility', 'extended_decline', 'poor_risk_return']
+        # Count total number of flags
+        total_flags = sum(risk_flags.values())
         
-        # RED rating if any critical flag is true
-        if any(risk_flags[flag] for flag in critical_flags):
+        # RED rating: High volatility OR 3+ flags OR severe combination
+        if risk_flags['high_volatility']:
             return 'RED'
         
-        # YELLOW rating if 2 or more warning flags
-        warning_count = sum(risk_flags[flag] for flag in warning_flags)
-        if warning_count >= 2:
+        if total_flags >= 3:
+            return 'RED'
+        
+        # Severe combination: extreme drawdown + severe decline
+        if risk_flags['extreme_drawdown'] and risk_flags['severe_decline']:
+            return 'RED'
+        
+        # YELLOW rating: 1-2 flags
+        if total_flags >= 1:
             return 'YELLOW'
         
-        # Additional YELLOW conditions
-        if risk_flags['momentum_breakdown'] and warning_count >= 1:
-            return 'YELLOW'
-        
+        # GREEN rating: No flags
         return 'GREEN'
     
     def calculate_rsi(self, prices: np.ndarray, period: int = 14) -> float:
