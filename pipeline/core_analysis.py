@@ -97,9 +97,9 @@ class CoreAnalysisEngine:
             volume_decline = 0
         
         # Price momentum (using weekly lookback periods: 1 month ≈ 4 weeks, 3 months ≈ 13 weeks, 6 months ≈ 26 weeks)
-        price_change_1m = (prices[-1] - prices[-4]) / prices[-4] if len(prices) >= 5 else 0
-        price_change_3m = (prices[-1] - prices[-13]) / prices[-13] if len(prices) >= 14 else 0
-        price_change_6m = (prices[-1] - prices[-26]) / prices[-26] if len(prices) >= 27 else 0
+        price_change_1m = (prices[-1] - prices[-5]) / prices[-5] if len(prices) >= 5 else 0
+        price_change_3m = (prices[-1] - prices[-14]) / prices[-14] if len(prices) >= 14 else 0
+        price_change_6m = (prices[-1] - prices[-27]) / prices[-27] if len(prices) >= 27 else 0
         
         # Sharpe ratio (assuming risk-free rate of 2%)
         risk_free_rate = 0.02
