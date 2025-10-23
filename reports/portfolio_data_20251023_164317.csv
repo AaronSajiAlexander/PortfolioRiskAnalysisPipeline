@@ -1,0 +1,22 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+MSFT,Microsoft Corporation,Technology,520.54,991845577265,16.86,0.0283,NYSE,USD
+V,Visa Inc.,Financial Services,345.36,344840292947,24.14,0.0,NYSE,USD
+NVDA,NVIDIA Corporation,Technology,180.28,309323451209,12.11,0.0366,NYSE,USD
+CRM,Salesforce Inc.,Technology,256.64,273421393437,21.76,0.0141,NYSE,USD
+BA,Boeing Co.,Industrial,216.59,244298825884,,0.0,NYSE,USD
+TSLA,Tesla Inc.,Consumer Discretionary,438.97,231386575441,13.21,0.0,NYSE,USD
+JNJ,Johnson & Johnson,Healthcare,192.94,218483910050,11.34,0.0,NYSE,USD
+AAPL,Apple Inc.,Technology,258.45,133294979884,,0.035,NASDAQ,USD
+SQ,Block Inc.,Financial Services,66.56,131379561763,25.62,0.0,NYSE,USD
+UBER,Uber Technologies Inc.,Technology,92.21,82726071299,27.43,0.0,NYSE,USD
+PG,Procter & Gamble Co.,Consumer Staples,152.2,76896567618,26.55,0.0169,NASDAQ,USD
+GME,GameStop Corp.,Consumer Discretionary,22.49,33861501999,22.07,0.0,NYSE,USD
+SBUX,Starbucks Corporation,Consumer Discretionary,85.5,22282329847,21.18,0.0,NASDAQ,USD
+SHOP,Shopify Inc.,Technology,162.01,19759826687,25.92,0.0,NASDAQ,USD
+WMT,Walmart Inc.,Consumer Staples,107.14,16084955842,18.73,0.0136,NYSE,USD
+SNAP,Snap Inc.,Technology,7.77,7431692420,,0.0268,NYSE,USD
+RIVN,Rivian Automotive Inc.,Consumer Discretionary,12.92,5959052258,19.91,0.0351,NYSE,USD
+XOM,Exxon Mobil Corporation,Energy,114.71,5828713001,26.3,0.0181,NYSE,USD
+AMC,AMC Entertainment Holdings,Consumer Discretionary,2.75,3553206197,,0.0,NASDAQ,USD
+SPCE,Virgin Galactic Holdings,Industrial,3.72,2390447968,16.21,0.0017,NYSE,USD
+BLNK,Blink Charging Co.,Energy,1.79,2163566348,28.73,0.0,NASDAQ,USD
