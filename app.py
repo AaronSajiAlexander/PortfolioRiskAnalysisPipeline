@@ -33,10 +33,11 @@ def main():
     # Sidebar for pipeline controls
     st.sidebar.header("Pipeline Controls")
 
-    # Fixed portfolio size (all 20 stocks)
-    portfolio_size = 20
-    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks (real-time API data)")
-    st.sidebar.warning("⏱️ Data fetch takes ~4 minutes (API rate limits)")
+    # Fixed portfolio size (all 45 stocks: 15 red, 15 yellow, 15 green)
+    portfolio_size = 45
+    st.sidebar.info(f"📊 Portfolio Size: {portfolio_size} stocks")
+    st.sidebar.success("✅ 15 Green (low risk) | 15 Yellow (medium) | 15 Red (high)")
+    st.sidebar.warning("⏱️ Weekly data fetch: ~9 minutes (API rate limits)")
 
     # Pipeline execution button
     execute_pipeline = st.sidebar.button("🚀 Execute Full Pipeline",
@@ -83,7 +84,7 @@ def execute_full_pipeline(portfolio_size):
 
     try:
         # Stage 1: Data Ingestion
-        status_text.text("Stage 1: Ingesting Bloomberg data...")
+        status_text.text("Stage 1: Fetching weekly data from Alpha Vantage API...")
         progress_bar.progress(10)
 
         data_engine = DataIngestionEngine()

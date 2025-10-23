@@ -1,0 +1,21 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+META,Meta Platforms Inc.,Technology,733.44,1009868497929,25.77,0.0116,NASDAQ,USD
+MSFT,Microsoft Corporation,Technology,520.89,694713819570,21.79,0.0124,NASDAQ,USD
+CTRX,Context Therapeutics Inc.,Healthcare,339.79,614438267865,18.48,0.0157,NASDAQ,USD
+IBM,IBM Corporation,Technology,268.76,497989482325,24.97,0.0069,NYSE,USD
+AMZN,Amazon.com Inc.,Consumer Discretionary,218.13,378013530277,28.87,0.0,NYSE,USD
+NVDA,NVIDIA Corporation,Technology,179.7,323953721077,20.13,0.0,NYSE,USD
+AAPL,Apple Inc.,Technology,258.78,252614701324,27.38,0.0373,NASDAQ,USD
+JNJ,Johnson & Johnson,Healthcare,193.5,182578886509,18.12,0.0055,NASDAQ,USD
+OKLO,Oklo Inc.,Energy,116.66,146331656713,16.1,0.0335,NYSE,USD
+TSM,Taiwan Semiconductor Manufacturing,Technology,288.4,138757838357,15.5,0.0207,NASDAQ,USD
+GOOGL,Alphabet Inc.,Technology,251.78,108208550593,27.56,0.0404,NASDAQ,USD
+JPM,JPMorgan Chase & Co.,Financial Services,293.98,80705979815,10.36,0.0091,NASDAQ,USD
+QUBT,Quantum Computing Inc.,Technology,14.72,25033303201,13.43,0.0041,NASDAQ,USD
+ATRO,Astronics Corporation,Industrial,49.12,12312042397,28.84,0.0,NYSE,USD
+SERV,Serve Robotics Inc.,Technology,12.94,9528251064,12.57,0.031,NYSE,USD
+AEVA,Aeva Technologies Inc.,Technology,16.13,7764867735,25.16,0.0,NYSE,USD
+EVGO,EVgo Inc.,Energy,4.19,7120247475,22.17,0.0,NYSE,USD
+TDUP,ThredUp Inc.,Consumer Discretionary,8.79,2553239729,24.09,0.0086,NYSE,USD
+USAS,Americas Gold & Silver Corp.,Materials,4.05,1531806665,17.06,0.0,NYSE,USD
+IKT,Inhibikase Therapeutics Inc.,Healthcare,1.6,602384084,27.85,0.0,NYSE,USD

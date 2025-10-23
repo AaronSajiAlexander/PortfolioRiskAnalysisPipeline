@@ -10,33 +10,64 @@ class MockBloombergData:
     """
     
     def __init__(self):
-        self.well_known_stocks = [
-            {'symbol': 'AAPL', 'name': 'Apple Inc.', 'sector': 'Technology'},
-            {'symbol': 'MSFT', 'name': 'Microsoft Corporation', 'sector': 'Technology'},
-            {'symbol': 'NVDA', 'name': 'NVIDIA Corporation', 'sector': 'Technology'},
-            {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'sector': 'Technology'},
-            {'symbol': 'AMZN', 'name': 'Amazon.com Inc.', 'sector': 'Consumer Discretionary'},
-            {'symbol': 'META', 'name': 'Meta Platforms Inc.', 'sector': 'Technology'},
-            {'symbol': 'IBM', 'name': 'IBM Corporation', 'sector': 'Technology'},
-            {'symbol': 'TSM', 'name': 'Taiwan Semiconductor Manufacturing', 'sector': 'Technology'},
-            {'symbol': 'JPM', 'name': 'JPMorgan Chase & Co.', 'sector': 'Financial Services'},
-            {'symbol': 'JNJ', 'name': 'Johnson & Johnson', 'sector': 'Healthcare'}
+        # Green stocks (least risky) - 15 tickers
+        self.green_stocks = [
+            {'symbol': 'AAPL', 'name': 'Apple Inc.', 'sector': 'Technology', 'risk_category': 'GREEN'},
+            {'symbol': 'MSFT', 'name': 'Microsoft Corporation', 'sector': 'Technology', 'risk_category': 'GREEN'},
+            {'symbol': 'JNJ', 'name': 'Johnson & Johnson', 'sector': 'Healthcare', 'risk_category': 'GREEN'},
+            {'symbol': 'PG', 'name': 'Procter & Gamble Co.', 'sector': 'Consumer Staples', 'risk_category': 'GREEN'},
+            {'symbol': 'KO', 'name': 'Coca-Cola Co.', 'sector': 'Consumer Staples', 'risk_category': 'GREEN'},
+            {'symbol': 'V', 'name': 'Visa Inc.', 'sector': 'Financial Services', 'risk_category': 'GREEN'},
+            {'symbol': 'MA', 'name': 'Mastercard Inc.', 'sector': 'Financial Services', 'risk_category': 'GREEN'},
+            {'symbol': 'HD', 'name': 'Home Depot Inc.', 'sector': 'Consumer Discretionary', 'risk_category': 'GREEN'},
+            {'symbol': 'MCD', 'name': 'McDonald\'s Corporation', 'sector': 'Consumer Discretionary', 'risk_category': 'GREEN'},
+            {'symbol': 'UNH', 'name': 'UnitedHealth Group Inc.', 'sector': 'Healthcare', 'risk_category': 'GREEN'},
+            {'symbol': 'WMT', 'name': 'Walmart Inc.', 'sector': 'Consumer Staples', 'risk_category': 'GREEN'},
+            {'symbol': 'IBM', 'name': 'IBM Corporation', 'sector': 'Technology', 'risk_category': 'GREEN'},
+            {'symbol': 'XOM', 'name': 'Exxon Mobil Corporation', 'sector': 'Energy', 'risk_category': 'GREEN'},
+            {'symbol': 'CVX', 'name': 'Chevron Corporation', 'sector': 'Energy', 'risk_category': 'GREEN'},
+            {'symbol': 'PEP', 'name': 'PepsiCo Inc.', 'sector': 'Consumer Staples', 'risk_category': 'GREEN'}
         ]
         
-        self.risky_stocks = [
-            {'symbol': 'SERV', 'name': 'Serve Robotics Inc.', 'sector': 'Technology'},
-            {'symbol': 'EVGO', 'name': 'EVgo Inc.', 'sector': 'Energy'},
-            {'symbol': 'TDUP', 'name': 'ThredUp Inc.', 'sector': 'Consumer Discretionary'},
-            {'symbol': 'USAS', 'name': 'Americas Gold & Silver Corp.', 'sector': 'Materials'},
-            {'symbol': 'AEVA', 'name': 'Aeva Technologies Inc.', 'sector': 'Technology'},
-            {'symbol': 'ATRO', 'name': 'Astronics Corporation', 'sector': 'Industrial'},
-            {'symbol': 'QUBT', 'name': 'Quantum Computing Inc.', 'sector': 'Technology'},
-            {'symbol': 'CTRX', 'name': 'Context Therapeutics Inc.', 'sector': 'Healthcare'},
-            {'symbol': 'IKT', 'name': 'Inhibikase Therapeutics Inc.', 'sector': 'Healthcare'},
-            {'symbol': 'OKLO', 'name': 'Oklo Inc.', 'sector': 'Energy'}
+        # Yellow stocks (medium risky) - 15 tickers
+        self.yellow_stocks = [
+            {'symbol': 'CRM', 'name': 'Salesforce Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'NOW', 'name': 'ServiceNow Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'SBUX', 'name': 'Starbucks Corporation', 'sector': 'Consumer Discretionary', 'risk_category': 'YELLOW'},
+            {'symbol': 'GM', 'name': 'General Motors Co.', 'sector': 'Consumer Discretionary', 'risk_category': 'YELLOW'},
+            {'symbol': 'BA', 'name': 'Boeing Co.', 'sector': 'Industrial', 'risk_category': 'YELLOW'},
+            {'symbol': 'UBER', 'name': 'Uber Technologies Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'LYFT', 'name': 'Lyft Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'SNAP', 'name': 'Snap Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'TWLO', 'name': 'Twilio Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'ZM', 'name': 'Zoom Video Communications', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'DOCU', 'name': 'DocuSign Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'SHOP', 'name': 'Shopify Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
+            {'symbol': 'SQ', 'name': 'Block Inc.', 'sector': 'Financial Services', 'risk_category': 'YELLOW'},
+            {'symbol': 'PLUG', 'name': 'Plug Power Inc.', 'sector': 'Energy', 'risk_category': 'YELLOW'},
+            {'symbol': 'ETSY', 'name': 'Etsy Inc.', 'sector': 'Consumer Discretionary', 'risk_category': 'YELLOW'}
         ]
         
-        self.all_stocks = self.well_known_stocks + self.risky_stocks
+        # Red stocks (high risk) - 15 tickers
+        self.red_stocks = [
+            {'symbol': 'TSLA', 'name': 'Tesla Inc.', 'sector': 'Consumer Discretionary', 'risk_category': 'RED'},
+            {'symbol': 'NVDA', 'name': 'NVIDIA Corporation', 'sector': 'Technology', 'risk_category': 'RED'},
+            {'symbol': 'AMD', 'name': 'Advanced Micro Devices Inc.', 'sector': 'Technology', 'risk_category': 'RED'},
+            {'symbol': 'BYND', 'name': 'Beyond Meat Inc.', 'sector': 'Consumer Staples', 'risk_category': 'RED'},
+            {'symbol': 'GME', 'name': 'GameStop Corp.', 'sector': 'Consumer Discretionary', 'risk_category': 'RED'},
+            {'symbol': 'AMC', 'name': 'AMC Entertainment Holdings', 'sector': 'Consumer Discretionary', 'risk_category': 'RED'},
+            {'symbol': 'FUBO', 'name': 'fuboTV Inc.', 'sector': 'Technology', 'risk_category': 'RED'},
+            {'symbol': 'NKLA', 'name': 'Nikola Corporation', 'sector': 'Consumer Discretionary', 'risk_category': 'RED'},
+            {'symbol': 'WKHS', 'name': 'Workhorse Group Inc.', 'sector': 'Consumer Discretionary', 'risk_category': 'RED'},
+            {'symbol': 'PLTR', 'name': 'Palantir Technologies Inc.', 'sector': 'Technology', 'risk_category': 'RED'},
+            {'symbol': 'RIVN', 'name': 'Rivian Automotive Inc.', 'sector': 'Consumer Discretionary', 'risk_category': 'RED'},
+            {'symbol': 'SPCE', 'name': 'Virgin Galactic Holdings', 'sector': 'Industrial', 'risk_category': 'RED'},
+            {'symbol': 'FCEL', 'name': 'FuelCell Energy Inc.', 'sector': 'Energy', 'risk_category': 'RED'},
+            {'symbol': 'FHTX', 'name': 'Foghorn Therapeutics Inc.', 'sector': 'Healthcare', 'risk_category': 'RED'},
+            {'symbol': 'BLNK', 'name': 'Blink Charging Co.', 'sector': 'Energy', 'risk_category': 'RED'}
+        ]
+        
+        self.all_stocks = self.green_stocks + self.yellow_stocks + self.red_stocks
     
     def generate_asset_data(self) -> Dict[str, Any]:
         """

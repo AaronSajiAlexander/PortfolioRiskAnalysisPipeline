@@ -1,0 +1,21 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+META,Meta Platforms Inc.,Technology,731.8,699560954953,14.17,0.0214,NYSE,USD
+JPM,JPMorgan Chase & Co.,Financial Services,297.25,520086350878,,0.0,NYSE,USD
+GOOGL,Alphabet Inc.,Technology,255.4,302124038836,29.93,0.0,NASDAQ,USD
+JNJ,Johnson & Johnson,Healthcare,192.05,270307664022,,0.0321,NYSE,USD
+AMZN,Amazon.com Inc.,Consumer Discretionary,220.0,222858084240,15.2,0.0,NYSE,USD
+IBM,IBM Corporation,Technology,282.4,191052233815,,0.0,NYSE,USD
+MSFT,Microsoft Corporation,Technology,516.5,155516081934,29.83,0.0404,NASDAQ,USD
+TSM,Taiwan Semiconductor Manufacturing,Technology,294.16,152793242000,22.69,0.0028,NASDAQ,USD
+NVDA,NVIDIA Corporation,Technology,180.74,93449047961,28.8,0.0248,NASDAQ,USD
+CTRX,Context Therapeutics Inc.,Healthcare,296.6,86910819632,,0.0,NASDAQ,USD
+ATRO,Astronics Corporation,Industrial,49.35,78759399899,18.57,0.0,NASDAQ,USD
+OKLO,Oklo Inc.,Energy,139.75,35317876301,,0.0444,NASDAQ,USD
+QUBT,Quantum Computing Inc.,Technology,16.01,31808701813,24.61,0.033,NYSE,USD
+AAPL,Apple Inc.,Technology,262.3,31106691567,18.58,0.037,NASDAQ,USD
+AEVA,Aeva Technologies Inc.,Technology,17.01,27265691023,27.34,0.0,NASDAQ,USD
+TDUP,ThredUp Inc.,Consumer Discretionary,8.97,17713669256,14.4,0.0232,NASDAQ,USD
+SERV,Serve Robotics Inc.,Technology,14.17,16694389354,14.83,0.0058,NASDAQ,USD
+EVGO,EVgo Inc.,Energy,4.3,5775087634,16.61,0.0,NASDAQ,USD
+USAS,Americas Gold & Silver Corp.,Materials,4.04,5006856048,14.31,0.0,NASDAQ,USD
+IKT,Inhibikase Therapeutics Inc.,Healthcare,1.58,1860809176,12.19,0.0,NYSE,USD

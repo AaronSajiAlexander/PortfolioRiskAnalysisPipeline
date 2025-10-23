@@ -19,9 +19,9 @@ class DataIngestionEngine:
         self.api_key = "XH5DTCIKQMS1C26Z"
         self.base_url = "https://www.alphavantage.co/query"
     
-    def fetch_intraday_data(self, symbol: str) -> Dict[str, Any] | None:
+    def fetch_weekly_data(self, symbol: str) -> Dict[str, Any] | None:
         """
-        Fetch intraday data from Alpha Vantage API
+        Fetch weekly adjusted data from Alpha Vantage API
         
         Args:
             symbol: Stock ticker symbol
@@ -30,11 +30,9 @@ class DataIngestionEngine:
             API response data or None if error
         """
         params = {
-            'function': 'TIME_SERIES_INTRADAY',
+            'function': 'TIME_SERIES_WEEKLY_ADJUSTED',
             'symbol': symbol,
-            'interval': '5min',
-            'apikey': self.api_key,
-            'outputsize': 'full'
+            'apikey': self.api_key
         }
         
         try:
@@ -55,43 +53,31 @@ class DataIngestionEngine:
             print(f"Error fetching data for {symbol}: {str(e)}")
             return None
     
-    def parse_intraday_to_daily(self, intraday_data: Dict) -> Dict[str, List]:
+    def parse_weekly_data(self, weekly_data: Dict, max_weeks: int = 50) -> Dict[str, List]:
         """
-        Convert intraday 5-minute data to daily historical prices
+        Parse weekly adjusted data from Alpha Vantage API
         
         Args:
-            intraday_data: Alpha Vantage intraday response
+            weekly_data: Alpha Vantage weekly response
+            max_weeks: Maximum number of weeks to include (default 50)
             
         Returns:
-            Dictionary with daily prices, dates, and volumes
+            Dictionary with weekly prices, dates, and volumes
         """
-        if not intraday_data or 'Time Series (5min)' not in intraday_data:
+        if not weekly_data or 'Weekly Adjusted Time Series' not in weekly_data:
             return {'prices': [], 'dates': [], 'volumes': []}
         
-        time_series = intraday_data['Time Series (5min)']
+        time_series = weekly_data['Weekly Adjusted Time Series']
         
-        # Group by date and get daily aggregates
-        daily_data = {}
-        for timestamp, data in time_series.items():
-            date = timestamp.split(' ')[0]
-            
-            if date not in daily_data:
-                daily_data[date] = {
-                    'open': float(data['1. open']),
-                    'high': float(data['2. high']),
-                    'low': float(data['3. low']),
-                    'close': float(data['4. close']),
-                    'volume': int(data['5. volume'])
-                }
-            else:
-                daily_data[date]['high'] = max(daily_data[date]['high'], float(data['2. high']))
-                daily_data[date]['low'] = min(daily_data[date]['low'], float(data['3. low']))
-                daily_data[date]['volume'] += int(data['5. volume'])
+        # Sort dates in descending order (most recent first) and limit to max_weeks
+        sorted_dates = sorted(time_series.keys(), reverse=True)[:max_weeks]
         
-        # Sort by date and extract values
-        sorted_dates = sorted(daily_data.keys())
-        prices = [daily_data[date]['close'] for date in sorted_dates]
-        volumes = [daily_data[date]['volume'] for date in sorted_dates]
+        # Reverse to get chronological order (oldest to newest)
+        sorted_dates = sorted_dates[::-1]
+        
+        # Extract adjusted close prices and volumes
+        prices = [float(time_series[date]['5. adjusted close']) for date in sorted_dates]
+        volumes = [int(time_series[date]['6. volume']) for date in sorted_dates]
         
         return {
             'prices': prices,
@@ -99,8 +85,13 @@ class DataIngestionEngine:
             'volumes': volumes
         }
     
-    def calculate_metrics(self, prices: List[float]) -> Dict[str, Any]:
-        """Calculate financial metrics from price history"""
+    def calculate_metrics(self, prices: List[float], is_weekly: bool = True) -> Dict[str, Any]:
+        """Calculate financial metrics from price history
+        
+        Args:
+            prices: List of historical prices
+            is_weekly: If True, treats prices as weekly data for volatility calculation
+        """
         if not prices or len(prices) < 2:
             return {
                 'volatility': 0.20,
@@ -109,7 +100,12 @@ class DataIngestionEngine:
             }
         
         returns = np.diff(prices) / prices[:-1]
-        volatility = float(np.std(returns) * np.sqrt(252))  # Annualized
+        
+        # Annualized volatility
+        # For weekly data: sqrt(52) weeks per year
+        # For daily data: sqrt(252) trading days per year
+        annualization_factor = np.sqrt(52) if is_weekly else np.sqrt(252)
+        volatility = float(np.std(returns) * annualization_factor)
         
         return {
             'volatility': volatility,
@@ -117,18 +113,18 @@ class DataIngestionEngine:
             'dividend_yield': random.uniform(0, 0.05) if random.random() > 0.4 else 0.0
         }
     
-    def ingest_portfolio_data(self, portfolio_size: int = 20) -> List[Dict[str, Any]]:
+    def ingest_portfolio_data(self, portfolio_size: int = 45) -> List[Dict[str, Any]]:
         """
-        Ingest portfolio data from Alpha Vantage API
+        Ingest portfolio data from Alpha Vantage API using weekly data
         
         Args:
-            portfolio_size: Number of assets in portfolio
+            portfolio_size: Number of assets in portfolio (default 45)
             
         Returns:
             List of dictionaries containing asset data
         """
         print(f"Connecting to Alpha Vantage API...")
-        print(f"Fetching real-time data for {portfolio_size} stocks...")
+        print(f"Fetching weekly data for {portfolio_size} stocks...")
         
         portfolio_data = []
         all_stocks = self.mock_data_generator.all_stocks
@@ -136,12 +132,12 @@ class DataIngestionEngine:
         for i, stock in enumerate(all_stocks[:portfolio_size]):
             print(f"Fetching {stock['symbol']} ({i+1}/{portfolio_size})...")
             
-            # Fetch data from Alpha Vantage
-            api_data = self.fetch_intraday_data(stock['symbol'])
+            # Fetch weekly data from Alpha Vantage
+            api_data = self.fetch_weekly_data(stock['symbol'])
             
-            # Parse to daily data
+            # Parse weekly data (limited to 50 weeks)
             if api_data:
-                historical = self.parse_intraday_to_daily(api_data)
+                historical = self.parse_weekly_data(api_data, max_weeks=50)
                 current_price = historical['prices'][-1] if historical['prices'] else random.uniform(50, 400)
             else:
                 # Fallback to mock data if API fails
@@ -152,8 +148,8 @@ class DataIngestionEngine:
                 )
                 current_price = mock_asset['current_price']
             
-            # Calculate metrics
-            metrics = self.calculate_metrics(historical['prices'])
+            # Calculate metrics (weekly data)
+            metrics = self.calculate_metrics(historical['prices'], is_weekly=True)
             
             # Estimate market cap
             shares_outstanding = random.randint(50_000_000, 2_000_000_000)
