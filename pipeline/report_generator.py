@@ -199,8 +199,9 @@ class ReportGenerator:
         red_assets = [a for a in analysis_results if a['risk_rating'] == 'RED']
         yellow_assets = [a for a in analysis_results if a['risk_rating'] == 'YELLOW']
         
-        avg_volatility = np.mean([a['volatility'] for a in analysis_results])
-        max_drawdown_portfolio = min([a['max_drawdown'] for a in analysis_results])
+        # Calculate metrics with safety checks for empty arrays
+        avg_volatility = np.mean([a['volatility'] for a in analysis_results]) if analysis_results else 0
+        max_drawdown_portfolio = min([a['max_drawdown'] for a in analysis_results]) if analysis_results else 0
         
         # Executive summary text
         summary_text = f"""
@@ -219,7 +220,7 @@ class ReportGenerator:
         """
         
         if sentiment_results:
-            avg_sentiment = np.mean([s['sentiment_score'] for s in sentiment_results])
+            avg_sentiment = np.mean([s['sentiment_score'] for s in sentiment_results]) if sentiment_results else 0
             negative_sentiment_count = len([s for s in sentiment_results if s['sentiment_label'] == 'NEGATIVE'])
             
             summary_text += f"""
