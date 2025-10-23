@@ -60,7 +60,7 @@ class MockBloombergData:
         Generate mock data for a specific stock
         
         Args:
-            stock: Dictionary with 'symbol', 'name', and 'sector'
+            stock: Dictionary with 'symbol', 'name', 'sector', and 'risk_category'
         
         Returns:
             Dictionary containing asset information
@@ -68,20 +68,25 @@ class MockBloombergData:
         symbol = stock['symbol']
         company_name = stock['name']
         sector = stock['sector']
+        risk_category = stock.get('risk_category', 'YELLOW')  # Default to YELLOW if not specified
         
         # Price data - realistic ranges based on sector
         if sector in ['Technology', 'Healthcare']:
             base_price = random.uniform(50, 400)
-            volatility_base = random.uniform(0.15, 0.45)
         elif sector in ['Financial Services', 'Energy']:
             base_price = random.uniform(30, 150)
-            volatility_base = random.uniform(0.20, 0.50)
         elif sector in ['Utilities', 'Consumer Staples']:
             base_price = random.uniform(40, 120)
-            volatility_base = random.uniform(0.10, 0.25)
         else:
             base_price = random.uniform(35, 200)
-            volatility_base = random.uniform(0.15, 0.35)
+        
+        # Volatility based on risk_category (most important for risk classification)
+        if risk_category == 'GREEN':
+            volatility_base = random.uniform(0.15, 0.25)  # 15-25% annualized volatility
+        elif risk_category == 'YELLOW':
+            volatility_base = random.uniform(0.25, 0.38)  # 25-38% annualized volatility
+        else:  # RED
+            volatility_base = random.uniform(0.38, 0.55)  # 38-55% annualized volatility
         
         # Market cap based on price and shares outstanding
         shares_outstanding = random.randint(50_000_000, 2_000_000_000)
@@ -95,6 +100,7 @@ class MockBloombergData:
             'symbol': symbol,
             'company_name': company_name,
             'sector': sector,
+            'risk_category': risk_category,  # Include risk category in asset data
             'current_price': round(base_price, 2),
             'market_cap': int(market_cap),
             'shares_outstanding': shares_outstanding,
@@ -106,13 +112,14 @@ class MockBloombergData:
             'country': 'United States'
         }
     
-    def generate_historical_prices(self, current_price: float, days: int = 252) -> Dict[str, List]:
+    def generate_historical_prices(self, current_price: float, days: int = 252, risk_category: str = None) -> Dict[str, List]:
         """
         Generate realistic historical price data using geometric Brownian motion
         
         Args:
             current_price: Current/ending price
             days: Number of historical days to generate
+            risk_category: 'GREEN', 'YELLOW', or 'RED' to control volatility
             
         Returns:
             Dictionary with prices, dates, and volumes
@@ -120,7 +127,16 @@ class MockBloombergData:
         # Parameters for price simulation
         dt = 1/252  # Daily time step
         mu = random.uniform(-0.05, 0.15)  # Annual drift (return)
-        sigma = random.uniform(0.15, 0.45)  # Annual volatility
+        
+        # Set volatility based on risk_category
+        if risk_category == 'GREEN':
+            sigma = random.uniform(0.15, 0.25)  # Low volatility for green stocks
+        elif risk_category == 'YELLOW':
+            sigma = random.uniform(0.25, 0.38)  # Medium volatility for yellow stocks
+        elif risk_category == 'RED':
+            sigma = random.uniform(0.38, 0.55)  # High volatility for red stocks
+        else:
+            sigma = random.uniform(0.15, 0.45)  # Default range if not specified
         
         # Generate price path working backwards from current price
         prices = [current_price]

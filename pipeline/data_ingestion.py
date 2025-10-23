@@ -16,7 +16,7 @@ class DataIngestionEngine:
     def __init__(self):
         self.mock_data_generator = MockBloombergData()
         self.connection_status = "Connected"
-        self.api_key = "7FO8T0CSCBEPUNCV"
+        self.api_key = "TODSU3D7IRBMSROF"
         self.base_url = "https://www.alphavantage.co/query"
     
     def fetch_weekly_data(self, symbol: str) -> Dict[str, Any] | None:
@@ -187,7 +187,7 @@ class DataIngestionEngine:
                 print(f"Using mock data for {stock['symbol']} (converting daily to weekly)")
                 mock_asset = self.mock_data_generator.generate_asset_data_for_stock(stock)
                 daily_historical = self.mock_data_generator.generate_historical_prices(
-                    mock_asset['current_price'], days=252
+                    mock_asset['current_price'], days=252, risk_category=stock.get('risk_category')
                 )
                 # Convert daily to weekly to maintain consistent granularity
                 historical = self.convert_daily_to_weekly(daily_historical)
