@@ -1,16 +1,108 @@
 {
-  "SNAP": [
+  "AAPL": [
     {
-      "headline": "How a lapse in SNAP benefits could affect consumers and retailers",
-      "body": "Funding for the Supplemental Nutrition Assistance Program could lapse within days if the government shutdown persists.",
+      "headline": "3 reasons Apple deserves its initiation into the $4 trillion club \u2014 and what to expect next",
+      "body": "JPMorgan said that Apple shares are heading into Thursday's quarterly earnings release with \"a greater halo of positivity than any time in the past year.\"",
+      "source": "CNBC US Markets",
+      "date": "Wed, 29 Oct 2025 15:11:59 GMT"
+    }
+  ],
+  "MSFT": [
+    {
+      "headline": "Microsoft stock drops on forecast for increased spending growth this year",
+      "body": "Microsoft's cloud business has been growing faster than rival Amazon Web Services, as the company ramps up artificial intelligence investments.",
       "source": "CNBC Top News",
-      "date": "Wed, 29 Oct 2025 18:54:25 GMT"
+      "date": "Wed, 29 Oct 2025 23:24:42 GMT"
     },
     {
-      "headline": "How a lapse in SNAP benefits could affect consumers and retailers",
-      "body": "Funding for the Supplemental Nutrition Assistance Program could lapse within days if the government shutdown persists.",
+      "headline": "Microsoft shares slide despite a clean beat \u2014 we're mulling a rating upgrade",
+      "body": "There is enough good in the latest results to remain bullish on Microsoft shares for the long haul.",
+      "source": "CNBC US Markets",
+      "date": "Thu, 30 Oct 2025 00:21:31 GMT"
+    },
+    {
+      "headline": "MS Azure outage raises questions over cloud dependencies",
+      "body": "The spotlight has once again been shone on the prominent role played by a small number of cloud computing providers after an outage suffered by Microsoft's Azure platform",
+      "source": "Finextra Headlines",
+      "date": "Thu, 30 Oct 2025 10:47:00 GMT"
+    }
+  ],
+  "V": [
+    {
+      "headline": "PREDICT 2026: Stablecoins in transition: Regulatory, technological and market forecasts",
+      "body": "Stablecoin transaction volumes surpassed that of Visa and Mastercard combined in 2024. What next?",
+      "source": "Finextra Headlines",
+      "date": "Tue, 02 Dec 2025 15:00:00 GMT"
+    }
+  ],
+  "WMT": [
+    {
+      "headline": "Eli Lilly, Walmart to offer first retail pickup option for discounted vials of weight loss drug Zepbound",
+      "body": "Starting in mid-November, cash-paying patients can purchase Zepbound vials at discounts of 50% or more through the retailer's locations or via home delivery.",
       "source": "CNBC Finance",
-      "date": "Wed, 29 Oct 2025 18:54:25 GMT"
+      "date": "Wed, 29 Oct 2025 18:19:31 GMT"
+    }
+  ],
+  "SBUX": [
+    {
+      "headline": "Starbucks breaks same-store sales losing streak; CEO Niccol calls it a 'critical moment' in turnaround",
+      "body": "Under CEO Brian Niccol's leadership, the company has implemented a turnaround strategy focused on bringing the coffee chain back to its roots.",
+      "source": "CNBC Top News",
+      "date": "Thu, 30 Oct 2025 13:55:51 GMT"
+    },
+    {
+      "headline": "Coffee delivery is now a $1 billion business for Starbucks",
+      "body": "The coffee company said delivery sales climbed almost 30% in its fiscal fourth quarter.",
+      "source": "CNBC Finance",
+      "date": "Wed, 29 Oct 2025 21:42:28 GMT"
+    },
+    {
+      "headline": "Starbucks shows progress in its turnaround but is stuck in an unloved group",
+      "body": "The coffee chain provided enough evidence that CEO Brian Niccol's turnaround plan is working.",
+      "source": "CNBC US Markets",
+      "date": "Thu, 30 Oct 2025 12:00:12 GMT"
+    }
+  ],
+  "BA": [
+    {
+      "headline": "Boeing stems cash burn for first time since 2023 but takes $4.9 billion charge on 777X delays",
+      "body": "Boeing reported higher revenue than last year when production was constrained after a safety crisis and amid a labor strike.",
+      "source": "CNBC Finance",
+      "date": "Wed, 29 Oct 2025 20:15:19 GMT"
+    },
+    {
+      "headline": "Jim Cramer says buy Boeing on Wednesday's decline \u2014 he's looking forward, not back",
+      "body": "Shares of Boeing, a Club name and one of the 30 components that make up the Dow Jones Industrial Average, fell 4%.",
+      "source": "CNBC US Markets",
+      "date": "Wed, 29 Oct 2025 18:02:50 GMT"
+    }
+  ],
+  "SQ": [
+    {
+      "headline": "Analysts think Trump would block a Comcast-WBD deal. Comcast says M&A is 'viable'",
+      "body": "Comcast's Mike Cavanagh told investors he believes M&amp;A is more \"viable than maybe some of the public commentary that's out there.\"",
+      "source": "CNBC Top News",
+      "date": "Thu, 30 Oct 2025 14:49:43 GMT"
+    }
+  ],
+  "NVDA": [
+    {
+      "headline": "Eli Lilly, Nvidia partner to build supercomputer, AI factory for drug discovery and development",
+      "body": "It's the latest stride by Nvidia and the pharmaceutical industry to harness AI to try to reduce costs and shorten the time it takes to bring cures to patients.",
+      "source": "CNBC Finance",
+      "date": "Tue, 28 Oct 2025 19:18:22 GMT"
+    },
+    {
+      "headline": "Lucid targets industry-first self-driving car technology with Nvidia",
+      "body": "Lucid plans to be the first automaker to offer highly advanced self-driving capabilities in its vehicles in the coming years, the automaker said Tuesday.",
+      "source": "CNBC Finance",
+      "date": "Tue, 28 Oct 2025 20:16:28 GMT"
+    },
+    {
+      "headline": "Nvidia hits $5T market cap without big China sales. Jim Cramer says that could change",
+      "body": "The Investing Club holds its \"Morning Meeting\" every weekday at 10:20 a.m. ET.",
+      "source": "CNBC US Markets",
+      "date": "Wed, 29 Oct 2025 16:15:16 GMT"
     }
   ]
 }

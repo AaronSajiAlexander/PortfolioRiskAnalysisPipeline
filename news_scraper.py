@@ -44,22 +44,33 @@ class NewsScraperLLM:
         # Stock symbols to track (from mock_data.py)
         self.stock_symbols = self._load_stock_symbols()
         
-    def _load_stock_symbols(self) -> List[str]:
-        """Load stock symbols from mock_data.py"""
+    def _load_stock_symbols(self) -> Dict[str, str]:
+        """
+        Load stock symbols and company names from mock_data.py
+        
+        Returns:
+            Dictionary mapping symbols to company names
+        """
         # Import from mock_data
         try:
             from utils.mock_data import MockBloombergData
             mock_data = MockBloombergData()
-            symbols = [stock['symbol'] for stock in mock_data.all_stocks]
-            return symbols
+            symbol_map = {stock['symbol']: stock['name'] for stock in mock_data.all_stocks}
+            return symbol_map
         except Exception as e:
             print(f"Warning: Could not load symbols from mock_data.py: {e}")
-            # Fallback to hardcoded list
-            return [
-                'AAPL', 'MSFT', 'JNJ', 'PG', 'V', 'WMT', 'XOM',  # GREEN
-                'CRM', 'SBUX', 'BA', 'UBER', 'SNAP', 'SHOP', 'SQ',  # YELLOW
-                'TSLA', 'NVDA', 'GME', 'AMC', 'RIVN', 'SPCE', 'BLNK'  # RED
-            ]
+            # Fallback to hardcoded list with company names
+            return {
+                'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corporation', 'JNJ': 'Johnson & Johnson',
+                'PG': 'Procter & Gamble Co.', 'V': 'Visa Inc.', 'WMT': 'Walmart Inc.',
+                'XOM': 'Exxon Mobil Corporation', 'CRM': 'Salesforce Inc.',
+                'SBUX': 'Starbucks Corporation', 'BA': 'Boeing Co.',
+                'UBER': 'Uber Technologies Inc.', 'SNAP': 'Snap Inc.',
+                'SHOP': 'Shopify Inc.', 'SQ': 'Block Inc.', 'TSLA': 'Tesla Inc.',
+                'NVDA': 'NVIDIA Corporation', 'GME': 'GameStop Corp.',
+                'AMC': 'AMC Entertainment Holdings', 'RIVN': 'Rivian Automotive Inc.',
+                'SPCE': 'Virgin Galactic Holdings', 'BLNK': 'Blink Charging Co.'
+            }
     
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         """
@@ -99,7 +110,7 @@ class NewsScraperLLM:
     
     def filter_articles_by_stocks(self, articles: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Filter articles by stock symbols
+        Filter articles by stock symbols and company names
         
         Args:
             articles: List of all articles
@@ -109,25 +120,67 @@ class NewsScraperLLM:
         """
         print(f"\n🔍 Filtering articles for {len(self.stock_symbols)} stocks...")
         
-        stock_news = {symbol: [] for symbol in self.stock_symbols}
+        stock_news = {symbol: [] for symbol in self.stock_symbols.keys()}
+        
+        # Problematic symbols that cause false matches (with context)
+        false_match_patterns = {
+            'SNAP': r'\bSNAP\s+(benefits|program|food|assistance)',  # SNAP benefits program
+            'AMC': r'\bAMC\s+(theatre|theaters|cinema)',  # Could be generic AMC
+            'BA': r'\bBA\s+(degree|bachelor)',  # BA degree
+            'SQ': r'\bSQ\s+(ft|feet|meter)',  # Square feet/meter
+            'V': r'\bV\s+(shaped|neck|sign)'  # V-shaped, V-neck, etc.
+        }
         
         for article in articles:
             # Combine title and summary for matching
-            text = f"{article['title']} {article['summary']}".upper()
+            text = f"{article['title']} {article['summary']}"
+            text_upper = text.upper()
             
-            for symbol in self.stock_symbols:
-                # Match stock symbol (with word boundaries to avoid false matches)
-                # e.g., "AAPL" should match "AAPL stock" but not "AAPPLE"
-                pattern = r'\b' + re.escape(symbol) + r'\b'
-                if re.search(pattern, text):
-                    stock_news[symbol].append(article)
+            for symbol, company_name in self.stock_symbols.items():
+                matched = False
+                
+                # Check for false positive patterns first
+                if symbol in false_match_patterns:
+                    if re.search(false_match_patterns[symbol], text, re.IGNORECASE):
+                        continue  # Skip this article for this symbol
+                
+                # Match 1: Stock symbol with context (e.g., "AAPL stock", "$AAPL", "AAPL shares")
+                symbol_pattern = r'(\$' + re.escape(symbol) + r'\b|\b' + re.escape(symbol) + r'\s+(STOCK|SHARES|TICKER|INC|CORP|CORPORATION))'
+                if re.search(symbol_pattern, text_upper):
+                    matched = True
+                
+                # Match 1b: Stock symbol standalone in financial context (high confidence match)
+                # This catches headlines like "MSFT up 5%" or "BA stock slides"
+                standalone_pattern = r'\b' + re.escape(symbol) + r'\b'
+                if re.search(standalone_pattern, text_upper):
+                    # Additional validation: ensure it's in a financial/stock context
+                    financial_keywords = ['STOCK', 'SHARES', 'EARNINGS', 'REVENUE', 'PRICE', 'MARKET', 
+                                         'INVESTORS', 'TRADING', 'QUARTERLY', 'PROFIT', 'LOSS', 'GAINS',
+                                         'FALLS', 'RISES', 'SLIDES', 'SURGES', 'PLUNGES', 'RALLIES']
+                    if any(keyword in text_upper for keyword in financial_keywords):
+                        matched = True
+                
+                # Match 2: Company name (extract main company name before "Inc", "Corp", etc.)
+                company_base = company_name.split(' Inc')[0].split(' Corp')[0].split(' Co.')[0]
+                # Only match if company name is substantial (3+ chars to avoid false matches)
+                if len(company_base) >= 3:
+                    company_pattern = r'\b' + re.escape(company_base) + r'\b'
+                    if re.search(company_pattern, text, re.IGNORECASE):
+                        matched = True
+                
+                if matched:
+                    # Deduplicate: check if article already added
+                    article_links = [a['link'] for a in stock_news[symbol]]
+                    if article['link'] not in article_links:
+                        stock_news[symbol].append(article)
         
         # Count stocks with news
         stocks_with_news = {k: v for k, v in stock_news.items() if len(v) > 0}
         print(f"✓ Found news for {len(stocks_with_news)}/{len(self.stock_symbols)} stocks")
         
         for symbol, articles in stocks_with_news.items():
-            print(f"  • {symbol}: {len(articles)} articles")
+            company_name = self.stock_symbols[symbol]
+            print(f"  • {symbol} ({company_name}): {len(articles)} articles")
         
         return stock_news
     
