@@ -4,8 +4,11 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "beautifulsoup4>=4.14.2",
+    "feedparser>=6.0.12",
     "matplotlib>=3.10.7",
     "numpy>=2.3.3",
+    "openai>=2.6.1",
     "pandas>=2.3.3",
     "reportlab>=4.4.4",
     "requests>=2.32.5",
