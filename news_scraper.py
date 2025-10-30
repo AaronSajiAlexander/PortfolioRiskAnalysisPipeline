@@ -30,11 +30,13 @@ class NewsScraperLLM:
         
         # RSS feed sources (legal public feeds)
         self.rss_feeds = {
-            'Reuters Business': 'https://www.reuters.com/rssfeed/businessNews',
-            'Reuters Markets': 'https://www.reuters.com/rssfeed/marketsNews',
+            'Reuters Business (via Google)': 'https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com+business+markets&ceid=US:en&hl=en-US&gl=US',
+            'Reuters Finance (via Google)': 'https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com+finance+stocks&ceid=US:en&hl=en-US&gl=US',
             'CNBC Top News': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
             'CNBC Finance': 'https://www.cnbc.com/id/10001147/device/rss/rss.html',
             'CNBC US Markets': 'https://www.cnbc.com/id/15839135/device/rss/rss.html',
+            'WSJ Markets (via Google)': 'https://news.google.com/rss/search?q=when:24h+allinurl:wsj.com+markets+stocks&ceid=US:en&hl=en-US&gl=US',
+            'Bloomberg (via Google)': 'https://news.google.com/rss/search?q=when:24h+allinurl:bloomberg.com+markets+finance&ceid=US:en&hl=en-US&gl=US',
             'Finextra Headlines': 'https://www.finextra.com/rss/headlines.aspx',
             'Finextra News': 'https://www.finextra.com/rss/news.aspx'
         }
