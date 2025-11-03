@@ -406,16 +406,21 @@ class ReportGenerator:
         
         # Add news article links section
         story.append(Paragraph("News Articles Referenced", self.custom_styles['SubsectionHeader']))
+        story.append(Paragraph("The following news sources were analyzed to generate sentiment scores:", self.styles['Normal']))
+        story.append(Spacer(1, 10))
         
         for result in sorted(sentiment_results, key=lambda x: x['symbol']):
-            if result.get('recent_significant_news') and len(result['recent_significant_news']) > 0:
+            # Get all recent news (not just significant ones)
+            all_news = result.get('recent_news', [])
+            
+            if all_news and len(all_news) > 0:
                 # Stock header
-                stock_header = f"<b>{result['symbol']}</b> - {result.get('sector', 'Unknown')} ({result['news_count']} articles)"
+                stock_header = f"<b>{result['symbol']}</b> - {result.get('sector', 'Unknown')} ({result['news_count']} articles analyzed)"
                 story.append(Paragraph(stock_header, self.styles['Normal']))
                 story.append(Spacer(1, 5))
                 
-                # List recent significant news with links
-                for i, article in enumerate(result['recent_significant_news'][:5], 1):  # Show top 5
+                # List all recent news with links (show up to 10 most recent)
+                for i, article in enumerate(all_news[:10], 1):
                     headline = article.get('headline', 'No headline')
                     url = article.get('url', '#')
                     source = article.get('source', 'Unknown')

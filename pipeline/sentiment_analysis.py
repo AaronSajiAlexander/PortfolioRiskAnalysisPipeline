@@ -326,6 +326,7 @@ class SentimentAnalysisEngine:
             # Key insights
             'key_themes': key_themes,
             'recent_significant_news': recent_significant,
+            'recent_news': sorted(recent_articles, key=lambda x: x.get('published_date', ''), reverse=True)[:10],  # Add all recent news for PDF
             
             # Time-based analysis
             'recent_sentiment': recent_sentiment,
