@@ -18,20 +18,50 @@ class DataIngestionEngine:
     def __init__(self):
         self.mock_data_generator = MockBloombergData()
         self.connection_status = "Connected"
-        self.api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
+        
+        # Support up to 3 API keys for rotation
+        self.api_keys = [
+            os.getenv("ALPHA_VANTAGE_API_KEY"),
+            os.getenv("ALPHA_VANTAGE_API_KEY_2"),
+            os.getenv("ALPHA_VANTAGE_API_KEY_3")
+        ]
+        # Filter out None values
+        self.api_keys = [key for key in self.api_keys if key]
+        
+        if not self.api_keys:
+            print("⚠️ WARNING: No Alpha Vantage API keys found in environment variables!")
+            print("⚠️ Please add ALPHA_VANTAGE_API_KEY, ALPHA_VANTAGE_API_KEY_2, and/or ALPHA_VANTAGE_API_KEY_3 to Replit Secrets")
+            self.api_keys = ["DEMO"]  # Fallback to demo key (very limited)
+        
+        self.current_key_index = 0
+        self.api_key = self.api_keys[0]
         self.base_url = "https://www.alphavantage.co/query"
         
-        if not self.api_key:
-            print("⚠️ WARNING: ALPHA_VANTAGE_API_KEY not found in environment variables!")
-            print("⚠️ Please add your API key to Replit Secrets")
-            self.api_key = "DEMO"  # Fallback to demo key (very limited)
+        print(f"✓ Loaded {len(self.api_keys)} API key(s) for rotation")
+    
+    def rotate_to_next_key(self) -> bool:
+        """
+        Rotate to the next available API key
+        
+        Returns:
+            True if a new key was selected, False if no more keys available
+        """
+        if self.current_key_index < len(self.api_keys) - 1:
+            self.current_key_index += 1
+            self.api_key = self.api_keys[self.current_key_index]
+            print(f"🔄 Rotating to API key #{self.current_key_index + 1}")
+            return True
+        else:
+            print(f"⚠️ All {len(self.api_keys)} API keys exhausted")
+            return False
 
-    def fetch_weekly_data(self, symbol: str) -> Dict[str, Any] | None:
+    def fetch_weekly_data(self, symbol: str, retry_with_next_key: bool = True) -> Dict[str, Any] | None:
         """
         Fetch weekly adjusted data from Alpha Vantage API
         
         Args:
             symbol: Stock ticker symbol
+            retry_with_next_key: If True, will try next API key on rate limit
             
         Returns:
             API response data or None if error
@@ -51,21 +81,27 @@ class DataIngestionEngine:
             if 'Error Message' in data:
                 print(f"API Error for {symbol}: {data['Error Message']}")
                 return None
-            if 'Note' in data:
-                print(f"API Rate Limit for {symbol}: {data['Note']}")
-                return None
+            if 'Note' in data or 'Information' in data:
+                # Rate limit hit - try rotating to next key
+                if retry_with_next_key and self.rotate_to_next_key():
+                    print(f"Retrying {symbol} with new API key...")
+                    return self.fetch_weekly_data(symbol, retry_with_next_key=False)
+                else:
+                    print(f"API Rate Limit for {symbol} (all keys exhausted)")
+                    return None
 
             return data
         except Exception as e:
             print(f"Error fetching data for {symbol}: {str(e)}")
             return None
 
-    def fetch_fundamental_data(self, symbol: str) -> Dict[str, Any] | None:
+    def fetch_fundamental_data(self, symbol: str, retry_with_next_key: bool = True) -> Dict[str, Any] | None:
         """
         Fetch fundamental data from Alpha Vantage API (OVERVIEW function)
         
         Args:
             symbol: Stock ticker symbol
+            retry_with_next_key: If True, will try next API key on rate limit
             
         Returns:
             Dictionary with fundamental data or None if error
@@ -87,9 +123,14 @@ class DataIngestionEngine:
                     f"API Error (fundamentals) for {symbol}: {data['Error Message']}"
                 )
                 return None
-            if 'Note' in data:
-                print(f"API Rate Limit (fundamentals) for {symbol}")
-                return None
+            if 'Note' in data or 'Information' in data:
+                # Rate limit hit - try rotating to next key
+                if retry_with_next_key and self.rotate_to_next_key():
+                    print(f"Retrying fundamentals for {symbol} with new API key...")
+                    return self.fetch_fundamental_data(symbol, retry_with_next_key=False)
+                else:
+                    print(f"API Rate Limit (fundamentals) for {symbol} (all keys exhausted)")
+                    return None
 
             # Check if data is empty (invalid symbol)
             if not data or 'Symbol' not in data:
