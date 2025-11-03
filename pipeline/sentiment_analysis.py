@@ -7,6 +7,7 @@ from textblob import TextBlob
 import re
 import sys
 import os
+from email.utils import parsedate_to_datetime
 
 # Add parent directory to path to import news_scraper
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -101,8 +102,8 @@ class SentimentAnalysisEngine:
             symbol_articles = stock_news.get(symbol, [])
             
             if not symbol_articles:
-                print(f"  No real news found for {symbol}, using mock data")
-                return self._fetch_mock_news_for_asset(symbol, days_back=30)
+                print(f"  ℹ️  No real news found for {symbol} in recent feeds")
+                return []  # Return empty list - no real news available
             
             # Convert to standardized format
             standardized_articles = []
@@ -113,11 +114,25 @@ class SentimentAnalysisEngine:
                     article['summary']
                 )
                 
+                # Parse and normalize publication date (RFC 2822 to ISO-8601)
+                published_str = article.get('published', '')
+                try:
+                    if published_str:
+                        # Parse RFC 2822 format (e.g., "Mon, 03 Nov 2025 10:00:00 GMT")
+                        parsed_date = parsedate_to_datetime(published_str)
+                        published_date_iso = parsed_date.isoformat()
+                    else:
+                        published_date_iso = datetime.now().isoformat()
+                except Exception as e:
+                    # Fallback to current time if parsing fails
+                    print(f"    ⚠️ Could not parse date '{published_str}': {e}")
+                    published_date_iso = datetime.now().isoformat()
+                
                 standardized_articles.append({
                     'headline': article['title'],
                     'content': article['summary'],
                     'source': article['source'],
-                    'published_date': article['published'],
+                    'published_date': published_date_iso,
                     'url': article['link'],
                     'sentiment_score': sentiment_score,
                     'relevance_score': 1.0  # Real news assumed highly relevant
@@ -237,8 +252,21 @@ class SentimentAnalysisEngine:
         
         # Recent trend analysis (last 30 days vs. older news)
         recent_cutoff = datetime.now() - timedelta(days=30)
-        recent_articles = [a for a in news_articles if datetime.fromisoformat(a['published_date'].replace('Z', '+00:00')).replace(tzinfo=None) > recent_cutoff]
-        older_articles = [a for a in news_articles if datetime.fromisoformat(a['published_date'].replace('Z', '+00:00')).replace(tzinfo=None) <= recent_cutoff]
+        
+        # Safely parse dates with error handling
+        recent_articles = []
+        older_articles = []
+        for article in news_articles:
+            try:
+                published_date = datetime.fromisoformat(article['published_date'].replace('Z', '+00:00')).replace(tzinfo=None)
+                if published_date > recent_cutoff:
+                    recent_articles.append(article)
+                else:
+                    older_articles.append(article)
+            except (ValueError, AttributeError) as e:
+                # If date parsing fails, assume recent
+                print(f"    ⚠️ Date parsing error for article, assuming recent: {e}")
+                recent_articles.append(article)
         
         recent_sentiment = np.mean([a['sentiment_score'] for a in recent_articles]) if recent_articles else 0
         older_sentiment = np.mean([a['sentiment_score'] for a in older_articles]) if older_articles else 0
