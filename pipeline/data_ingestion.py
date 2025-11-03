@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import random
 import requests
 import time
+import os
 from typing import List, Dict, Any
 from utils.mock_data import MockBloombergData
 
@@ -11,20 +12,82 @@ class DataIngestionEngine:
     """
     Stage 1: Data Ingestion Engine
     Fetches real-time stock data from Alpha Vantage API
+    Supports automatic API key rotation when rate limits are hit
     """
     
     def __init__(self):
         self.mock_data_generator = MockBloombergData()
         self.connection_status = "Connected"
-        self.api_key = "DHA5E4O46W9M7U1N"
         self.base_url = "https://www.alphavantage.co/query"
+        
+        # Load API keys from environment secrets with fallback to hardcoded key
+        self.api_keys = self._load_api_keys()
+        self.current_key_index = 0
+        self.api_key = self.api_keys[self.current_key_index]
+        
+        print(f"✓ Initialized with {len(self.api_keys)} API key(s)")
     
-    def fetch_weekly_data(self, symbol: str) -> Dict[str, Any] | None:
+    def _load_api_keys(self) -> List[str]:
         """
-        Fetch weekly adjusted data from Alpha Vantage API
+        Load API keys from environment secrets.
+        Checks for: ALPHA_VANTAGE_API_KEY, ALPHA_VANTAGE_API_KEY_2, ALPHA_VANTAGE_API_KEY_3, etc.
+        
+        Returns:
+            List of API keys
+            
+        Raises:
+            ValueError: If no API keys are configured in environment secrets
+        """
+        keys = []
+        
+        # Try to load primary key from environment
+        primary_key = os.environ.get('ALPHA_VANTAGE_API_KEY')
+        if primary_key:
+            keys.append(primary_key)
+        
+        # Try to load backup keys (ALPHA_VANTAGE_API_KEY_2, _3, _4, etc.)
+        for i in range(2, 10):  # Support up to 9 backup keys
+            backup_key = os.environ.get(f'ALPHA_VANTAGE_API_KEY_{i}')
+            if backup_key:
+                keys.append(backup_key)
+        
+        # Require at least one API key to be configured
+        if not keys:
+            raise ValueError(
+                "❌ No Alpha Vantage API keys configured!\n"
+                "Please add your API key(s) to Replit Secrets:\n"
+                "  • ALPHA_VANTAGE_API_KEY (primary key)\n"
+                "  • ALPHA_VANTAGE_API_KEY_2 (optional backup)\n"
+                "  • ALPHA_VANTAGE_API_KEY_3 (optional backup)\n"
+                "  ... and so on.\n"
+                "Get free API keys at: https://www.alphavantage.co/support/#api-key"
+            )
+        
+        return keys
+    
+    def _switch_to_next_key(self) -> bool:
+        """
+        Switch to the next available API key.
+        
+        Returns:
+            True if successfully switched, False if no more keys available
+        """
+        if self.current_key_index < len(self.api_keys) - 1:
+            self.current_key_index += 1
+            self.api_key = self.api_keys[self.current_key_index]
+            print(f"⚠️ Rate limit hit. Switching to backup API key #{self.current_key_index + 1}")
+            return True
+        else:
+            print(f"❌ All {len(self.api_keys)} API key(s) have hit rate limits")
+            return False
+    
+    def fetch_weekly_data(self, symbol: str, retry_count: int = 0) -> Dict[str, Any] | None:
+        """
+        Fetch weekly adjusted data from Alpha Vantage API with automatic fallback
         
         Args:
             symbol: Stock ticker symbol
+            retry_count: Number of retries attempted (internal use)
             
         Returns:
             API response data or None if error
@@ -44,21 +107,32 @@ class DataIngestionEngine:
             if 'Error Message' in data:
                 print(f"API Error for {symbol}: {data['Error Message']}")
                 return None
-            if 'Note' in data:
-                print(f"API Rate Limit for {symbol}: {data['Note']}")
-                return None
+            
+            # Check for rate limit and attempt fallback
+            if 'Note' in data or 'Information' in data:
+                rate_limit_msg = data.get('Note') or data.get('Information')
+                print(f"API Rate Limit for {symbol}: {rate_limit_msg}")
+                
+                # Try switching to next API key
+                if self._switch_to_next_key() and retry_count < len(self.api_keys):
+                    print(f"  → Retrying {symbol} with backup key...")
+                    time.sleep(1)  # Brief pause before retry
+                    return self.fetch_weekly_data(symbol, retry_count + 1)
+                else:
+                    return None
                 
             return data
         except Exception as e:
             print(f"Error fetching data for {symbol}: {str(e)}")
             return None
     
-    def fetch_fundamental_data(self, symbol: str) -> Dict[str, Any] | None:
+    def fetch_fundamental_data(self, symbol: str, retry_count: int = 0) -> Dict[str, Any] | None:
         """
-        Fetch fundamental data from Alpha Vantage API (OVERVIEW function)
+        Fetch fundamental data from Alpha Vantage API (OVERVIEW function) with automatic fallback
         
         Args:
             symbol: Stock ticker symbol
+            retry_count: Number of retries attempted (internal use)
             
         Returns:
             Dictionary with fundamental data or None if error
@@ -78,9 +152,19 @@ class DataIngestionEngine:
             if 'Error Message' in data:
                 print(f"API Error (fundamentals) for {symbol}: {data['Error Message']}")
                 return None
-            if 'Note' in data:
-                print(f"API Rate Limit (fundamentals) for {symbol}")
-                return None
+            
+            # Check for rate limit and attempt fallback
+            if 'Note' in data or 'Information' in data:
+                rate_limit_msg = data.get('Note') or data.get('Information')
+                print(f"API Rate Limit (fundamentals) for {symbol}: {rate_limit_msg}")
+                
+                # Try switching to next API key
+                if self._switch_to_next_key() and retry_count < len(self.api_keys):
+                    print(f"  → Retrying {symbol} fundamentals with backup key...")
+                    time.sleep(1)  # Brief pause before retry
+                    return self.fetch_fundamental_data(symbol, retry_count + 1)
+                else:
+                    return None
             
             # Check if data is empty (invalid symbol)
             if not data or 'Symbol' not in data:
