@@ -39,7 +39,7 @@ class DataIngestionEngine:
         Raises:
             ValueError: If no API keys are configured in environment secrets
         """
-        keys = ["TTQRAZXE0EAV5YP5", "JGPG580NC833IWYG", "1BDPSEH58XY7M3LF"]
+        keys = ["Z14VKSP7LJSACAF5", "AA70PDFX5LBGFI76", "KZC6EX8A6KXJUIE4"]
 
         # Try to load primary key from environment
         primary_key = os.environ.get('ALPHA_VANTAGE_API_KEY')
