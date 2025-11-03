@@ -5,20 +5,40 @@ import random
 from typing import List, Dict, Any
 from textblob import TextBlob
 import re
+import sys
+import os
+
+# Add parent directory to path to import news_scraper
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from news_scraper import NewsScraperLLM
 
 class SentimentAnalysisEngine:
     """
-    Stage 3: Sentiment Analysis Engine
-    Analyzes news sentiment for RED-flagged assets only
+    Stage 4: Sentiment Analysis Engine
+    Analyzes news sentiment for RED-flagged assets only using real RSS feeds
     """
     
-    def __init__(self):
+    def __init__(self, use_real_news: bool = True):
         self.sentiment_threshold_negative = -0.3
         self.sentiment_threshold_positive = 0.3
         self.news_sources = [
             "Reuters", "Bloomberg News", "Financial Times", "Wall Street Journal", 
             "MarketWatch", "Yahoo Finance", "CNBC", "Seeking Alpha"
         ]
+        self.use_real_news = use_real_news
+        
+        # Initialize news scraper for real RSS feeds
+        if self.use_real_news:
+            try:
+                self.news_scraper = NewsScraperLLM()
+                print("✓ Real-time news scraper initialized (RSS feeds)")
+            except Exception as e:
+                print(f"⚠️ Could not initialize news scraper: {e}")
+                print("  Falling back to mock news data")
+                self.use_real_news = False
+                self.news_scraper = None
+        else:
+            self.news_scraper = None
     
     def analyze_sentiment(self, red_flagged_assets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
@@ -44,7 +64,7 @@ class SentimentAnalysisEngine:
     
     def fetch_news_for_asset(self, symbol: str, days_back: int = 365) -> List[Dict[str, Any]]:
         """
-        Fetch news articles for a specific asset (simulated)
+        Fetch news articles for a specific asset from real RSS feeds or mock data
         
         Args:
             symbol: Asset symbol
@@ -52,6 +72,75 @@ class SentimentAnalysisEngine:
             
         Returns:
             List of news articles
+        """
+        # Use real news if available
+        if self.use_real_news and self.news_scraper:
+            return self._fetch_real_news_for_asset(symbol)
+        
+        # Fallback to mock news (original implementation)
+        return self._fetch_mock_news_for_asset(symbol, days_back)
+    
+    def _fetch_real_news_for_asset(self, symbol: str) -> List[Dict[str, Any]]:
+        """
+        Fetch real news from RSS feeds for a specific asset
+        
+        Args:
+            symbol: Asset symbol
+            
+        Returns:
+            List of news articles in standardized format
+        """
+        try:
+            # Fetch all RSS feeds
+            all_articles = self.news_scraper.fetch_rss_feeds()
+            
+            # Filter for this specific symbol
+            stock_news = self.news_scraper.filter_articles_by_stocks(all_articles)
+            
+            # Get articles for this symbol
+            symbol_articles = stock_news.get(symbol, [])
+            
+            if not symbol_articles:
+                print(f"  No real news found for {symbol}, using mock data")
+                return self._fetch_mock_news_for_asset(symbol, days_back=30)
+            
+            # Convert to standardized format
+            standardized_articles = []
+            for article in symbol_articles:
+                # Calculate sentiment from headline and summary
+                sentiment_score = self.calculate_sentiment_from_text(
+                    article['title'], 
+                    article['summary']
+                )
+                
+                standardized_articles.append({
+                    'headline': article['title'],
+                    'content': article['summary'],
+                    'source': article['source'],
+                    'published_date': article['published'],
+                    'url': article['link'],
+                    'sentiment_score': sentiment_score,
+                    'relevance_score': 1.0  # Real news assumed highly relevant
+                })
+            
+            print(f"  ✓ Found {len(standardized_articles)} real news articles for {symbol}")
+            return standardized_articles
+            
+        except Exception as e:
+            print(f"  ⚠️ Error fetching real news for {symbol}: {e}")
+            print(f"  Falling back to mock news data")
+            return self._fetch_mock_news_for_asset(symbol, days_back=30)
+    
+    def _fetch_mock_news_for_asset(self, symbol: str, days_back: int = 365) -> List[Dict[str, Any]]:
+        """
+        Generate mock news articles for a specific asset (fallback)
+        
+        Args:
+            symbol: Asset symbol
+            days_back: Number of days to look back for news
+            
+        Returns:
+            List of mock news articles
         """
         # Generate mock news articles with realistic financial content
         news_templates = [
