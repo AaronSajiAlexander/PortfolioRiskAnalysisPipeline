@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import random
 import requests
 import time
+import os
 from typing import List, Dict, Any
 from utils.mock_data import MockBloombergData
 
@@ -17,8 +18,13 @@ class DataIngestionEngine:
     def __init__(self):
         self.mock_data_generator = MockBloombergData()
         self.connection_status = "Connected"
-        self.api_key = "X2KXZ8SABN9WJFD3"
+        self.api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
         self.base_url = "https://www.alphavantage.co/query"
+        
+        if not self.api_key:
+            print("⚠️ WARNING: ALPHA_VANTAGE_API_KEY not found in environment variables!")
+            print("⚠️ Please add your API key to Replit Secrets")
+            self.api_key = "DEMO"  # Fallback to demo key (very limited)
 
     def fetch_weekly_data(self, symbol: str) -> Dict[str, Any] | None:
         """
