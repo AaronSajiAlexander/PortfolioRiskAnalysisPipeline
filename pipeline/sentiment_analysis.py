@@ -240,7 +240,13 @@ class SentimentAnalysisEngine:
                 'sentiment_label': 'NEUTRAL',
                 'confidence': 0.0,
                 'recent_news': [],
-                'sentiment_trend': 'STABLE'
+                'sentiment_trend': 'STABLE',
+                'key_themes': [],
+                'sector': asset.get('sector', 'Unknown'),
+                'risk_rating': asset.get('risk_rating', 'UNKNOWN'),
+                'recent_news_count': 0,
+                'negative_news_ratio': 0.0,
+                'recent_significant_news': []
             }
         
         # Calculate overall sentiment metrics
