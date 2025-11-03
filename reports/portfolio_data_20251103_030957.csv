@@ -1,0 +1,22 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+AAPL,Apple Inc.,Technology,270.37,3995082424000,36.24,0.0038,NASDAQ,USD
+MSFT,Microsoft Corporation,Technology,517.81,3848559657000,36.78,0.0065,NASDAQ,USD
+WMT,Walmart Inc.,Consumer Staples,101.18,806693110000,38.18,0.0087,NYSE,USD
+V,Visa Inc.,Financial Services,340.74,658738774000,33.44,0.0071,NYSE,USD
+XOM,Exxon Mobil Corporation,Energy,114.36,487544947000,16.62,0.0345,NYSE,USD
+JNJ,Johnson & Johnson,Healthcare,188.87,455043547000,18.25,0.0269,NYSE,USD
+PG,Procter & Gamble Co.,Consumer Staples,150.37,351374606000,21.92,0.0276,NYSE,USD
+NVDA,NVIDIA Corporation,Technology,251.58,336303778461,23.19,0.0285,NYSE,USD
+RIVN,Rivian Automotive Inc.,Consumer Discretionary,135.02,251065057328,19.34,0.0,NYSE,USD
+CRM,Salesforce Inc.,Technology,260.41,247910318000,37.91,0.0064,NASDAQ,USD
+GME,GameStop Corp.,Consumer Discretionary,123.8,244544080193,23.94,0.0149,NASDAQ,USD
+SHOP,Shopify Inc.,Technology,173.86,226668904000,96.06,0.0,NASDAQ,USD
+AMC,AMC Entertainment Holdings,Consumer Discretionary,143.89,222473738544,28.45,0.0,NYSE,USD
+SQ,Block Inc.,Financial Services,124.13,207499867968,,0.0,NASDAQ,USD
+UBER,Uber Technologies Inc.,Technology,96.5,201242903000,16.44,0.0,NYSE,USD
+SPCE,Virgin Galactic Holdings,Industrial,105.02,169121147717,22.48,0.0,NASDAQ,USD
+BA,Boeing Co.,Industrial,201.02,152794399000,,0.0,NASDAQ,USD
+TSLA,Tesla Inc.,Consumer Discretionary,155.47,96359207138,21.12,0.0009,NASDAQ,USD
+BLNK,Blink Charging Co.,Energy,116.83,96351657435,21.86,0.0133,NYSE,USD
+SBUX,Starbucks Corporation,Consumer Discretionary,80.87,91941102000,49.61,0.0293,NASDAQ,USD
+SNAP,Snap Inc.,Technology,7.8,13180695000,,0.0,NASDAQ,USD
