@@ -29,7 +29,7 @@ class MockBloombergData:
             {'symbol': 'UBER', 'name': 'Uber Technologies Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
             {'symbol': 'SNAP', 'name': 'Snap Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
             {'symbol': 'SHOP', 'name': 'Shopify Inc.', 'sector': 'Technology', 'risk_category': 'YELLOW'},
-            {'symbol': 'SQ', 'name': 'Block Inc.', 'sector': 'Financial Services', 'risk_category': 'YELLOW'}
+            {'symbol': 'PYPL', 'name': 'PayPal Holdings Inc.', 'sector': 'Financial Services', 'risk_category': 'YELLOW'}
         ]
         
         # Red stocks (high risk) - 7 tickers
