@@ -404,6 +404,41 @@ class ReportGenerator:
         story.append(sentiment_table)
         story.append(Spacer(1, 20))
         
+        # Add news article links section
+        story.append(Paragraph("News Articles Referenced", self.custom_styles['SubsectionHeader']))
+        
+        for result in sorted(sentiment_results, key=lambda x: x['symbol']):
+            if result.get('recent_significant_news') and len(result['recent_significant_news']) > 0:
+                # Stock header
+                stock_header = f"<b>{result['symbol']}</b> - {result.get('sector', 'Unknown')} ({result['news_count']} articles)"
+                story.append(Paragraph(stock_header, self.styles['Normal']))
+                story.append(Spacer(1, 5))
+                
+                # List recent significant news with links
+                for i, article in enumerate(result['recent_significant_news'][:5], 1):  # Show top 5
+                    headline = article.get('headline', 'No headline')
+                    url = article.get('url', '#')
+                    source = article.get('source', 'Unknown')
+                    sentiment = article.get('sentiment_score', 0)
+                    
+                    # Truncate long headlines
+                    if len(headline) > 80:
+                        headline = headline[:77] + "..."
+                    
+                    # Create clickable link with sentiment indicator
+                    sentiment_icon = "📉" if sentiment < -0.2 else ("📈" if sentiment > 0.2 else "➖")
+                    article_text = f'{i}. {sentiment_icon} <link href="{url}" color="blue">{headline}</link> <i>({source})</i>'
+                    story.append(Paragraph(article_text, self.styles['Normal']))
+                
+                story.append(Spacer(1, 10))
+            elif result['news_count'] == 0:
+                # Show stocks with no news
+                stock_no_news = f"<b>{result['symbol']}</b> - No recent news articles found"
+                story.append(Paragraph(stock_no_news, self.styles['Normal']))
+                story.append(Spacer(1, 10))
+        
+        story.append(Spacer(1, 10))
+        
         return story
     
     def create_ml_analysis_section(self, ml_results: Dict) -> List:
