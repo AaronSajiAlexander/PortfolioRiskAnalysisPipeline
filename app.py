@@ -26,6 +26,58 @@ if 'execution_time' not in st.session_state:
     st.session_state.execution_time = None
 
 
+def get_all_red_flagged_assets(analysis_results, ml_results=None):
+    """
+    Collect all red-flagged assets from both core analysis and ML analysis
+    
+    Args:
+        analysis_results: Results from core analysis
+        ml_results: Results from ML analysis (optional)
+    
+    Returns:
+        List of unique red-flagged assets for sentiment analysis
+    """
+    red_assets_map = {}
+    
+    # Add all RED-rated stocks from core analysis
+    for asset in analysis_results:
+        if asset['risk_rating'] == 'RED':
+            red_assets_map[asset['symbol']] = asset
+    
+    # Add stocks predicted to be RED or deteriorating from ML analysis
+    if ml_results and ml_results.get('risk_prediction', {}).get('model_trained'):
+        predictions = ml_results['risk_prediction'].get('predictions', [])
+        
+        for prediction in predictions:
+            symbol = prediction['symbol']
+            
+            # Include if predicted to be RED
+            if prediction['predicted_rating'] == 'RED':
+                # Find the asset from analysis_results
+                asset = next((a for a in analysis_results if a['symbol'] == symbol), None)
+                if asset and symbol not in red_assets_map:
+                    red_assets_map[symbol] = asset
+            
+            # Include if trending DETERIORATING with high confidence
+            elif prediction['trend'] == 'DETERIORATING' and prediction['confidence'] > 60:
+                asset = next((a for a in analysis_results if a['symbol'] == symbol), None)
+                if asset and symbol not in red_assets_map:
+                    red_assets_map[symbol] = asset
+    
+    # Add critical anomalies from ML analysis
+    if ml_results and 'anomaly_detection' in ml_results:
+        anomalies = ml_results['anomaly_detection']
+        
+        for anomaly in anomalies:
+            if anomaly['severity'] in ['CRITICAL', 'HIGH'] and anomaly['is_anomaly']:
+                symbol = anomaly['symbol']
+                asset = next((a for a in analysis_results if a['symbol'] == symbol), None)
+                if asset and symbol not in red_assets_map:
+                    red_assets_map[symbol] = asset
+    
+    return list(red_assets_map.values())
+
+
 def main():
     st.title("Intelligent Asset Risk Analysis Pipeline")
     st.markdown("---")
@@ -127,20 +179,20 @@ def execute_full_pipeline(portfolio_size):
             f"✅ Stage 3 Complete: {anomaly_count} anomalies detected, ML model trained"
         )
 
-        # Stage 4: Sentiment Analysis
-        status_text.text("Stage 4: Analyzing sentiment for flagged assets...")
+        # Stage 4: Sentiment Analysis (includes ML-flagged assets)
+        status_text.text("Stage 4: Analyzing sentiment for all high-risk assets (Core + ML)...")
         progress_bar.progress(80)
 
         sentiment_engine = SentimentAnalysisEngine()
-        red_flagged_assets = [
-            a for a in analysis_results if a['risk_rating'] == 'RED'
-        ]
+        # Get all red-flagged assets from both core analysis and ML analysis
+        red_flagged_assets = get_all_red_flagged_assets(analysis_results, ml_results)
         sentiment_results = sentiment_engine.analyze_sentiment(
             red_flagged_assets)
 
         progress_bar.progress(90)
+        core_red = len([a for a in analysis_results if a['risk_rating'] == 'RED'])
         st.success(
-            f"✅ Stage 4 Complete: Sentiment analysis for {len(sentiment_results)} RED-flagged assets"
+            f"✅ Stage 4 Complete: Sentiment analysis for {len(sentiment_results)} high-risk assets ({core_red} core RED + {len(sentiment_results) - core_red} ML-flagged)"
         )
 
         # Stage 5: Report Generation
@@ -325,7 +377,7 @@ def execute_stage_3():
 
 
 def execute_stage_4():
-    """Execute Stage 4: Sentiment Analysis"""
+    """Execute Stage 4: Sentiment Analysis (includes ML-flagged assets)"""
     st.header("📰 Stage 4: Sentiment Analysis")
 
     if 'stage_results' not in st.session_state or 'stage2' not in st.session_state.stage_results:
@@ -333,17 +385,23 @@ def execute_stage_4():
         return
 
     analysis_results = st.session_state.stage_results['stage2']
-    red_flagged_assets = [
-        a for a in analysis_results if a['risk_rating'] == 'RED'
-    ]
+    ml_results = st.session_state.stage_results.get('stage3', None)
+    
+    # Get all red-flagged assets from both core and ML analysis
+    red_flagged_assets = get_all_red_flagged_assets(analysis_results, ml_results)
 
     if not red_flagged_assets:
         st.info(
-            "ℹ️ No RED-flagged assets found. Sentiment analysis not needed.")
+            "ℹ️ No high-risk assets found. Sentiment analysis not needed.")
         return
+    
+    core_red = len([a for a in analysis_results if a['risk_rating'] == 'RED'])
+    ml_flagged = len(red_flagged_assets) - core_red
+    
+    st.info(f"📊 Analyzing {len(red_flagged_assets)} high-risk assets: {core_red} from core analysis + {ml_flagged} from ML analysis")
 
     with st.spinner(
-            f"Analyzing sentiment for {len(red_flagged_assets)} RED-flagged assets..."
+            f"Analyzing sentiment for {len(red_flagged_assets)} high-risk assets..."
     ):
         sentiment_engine = SentimentAnalysisEngine()
         sentiment_results = sentiment_engine.analyze_sentiment(

@@ -30,10 +30,10 @@ For users new to AI and ML, here's a simple explanation of what the 5-stage pipe
 **Think of it like:** Having a detective who spots unusual patterns and connections that aren't obvious.
 
 ### Stage 4: Sentiment Analysis (Reading the News)
-**What it does:** Reads and analyzes financial news about your high-risk (RED) investments.
+**What it does:** Reads and analyzes financial news about ALL high-risk investments identified by both core analysis AND ML analysis.
 **Analyzes:** Sentiment scores, trends, themes, and confidence levels from multiple news sources.
-**Only for RED items:** Focuses on investments that need attention most urgently.
-**Think of it like:** Having someone read 50 news articles and summarize whether they're good news, bad news, or neutral.
+**Comprehensive Coverage:** Includes stocks flagged as RED in core analysis, stocks predicted to become RED by ML, stocks with deteriorating trends (>60% confidence), and stocks with CRITICAL/HIGH severity anomalies.
+**Think of it like:** Having someone read 50 news articles for EVERY concerning stock and summarize whether they're good news, bad news, or neutral.
 
 ### Stage 5: Report Generation (Pulling It All Together)
 **What it does:** Creates professional reports and downloadable files from all the analysis.
@@ -59,7 +59,7 @@ For users new to AI and ML, here's a simple explanation of what the 5-stage pipe
   1. **Data Ingestion**: Simulates Bloomberg API data fetching, collecting basic details, current snapshot, historical data, and trading activity.
   2. **Core Analysis**: Performs time-series and rule-based risk scoring based on 8 financial vital signs (Volatility, Max Drawdown, Volume Analysis, Price Momentum, Sharpe Ratio, RSI, Beta, Returns) leading to 7 warning flags and a GREEN/YELLOW/RED rating system.
   3. **ML Analysis**: Conducts anomaly detection (Isolation Forest) and risk prediction (Random Forest Classifier) using 9 key measurements. Includes ML validation and feature importance analysis.
-  4. **Sentiment Analysis**: NLP-based analysis (TextBlob) on financial news exclusively for RED-flagged assets, providing sentiment scores, trends, themes (e.g., Earnings, Regulatory), and confidence levels.
+  4. **Sentiment Analysis**: NLP-based analysis (TextBlob) on financial news for ALL high-risk assets (RED from core analysis + ML-predicted RED + deteriorating trends + critical anomalies), providing sentiment scores, trends, themes (e.g., Earnings, Regulatory), and confidence levels.
   5. **Report Generation**: Creates comprehensive PDF reports with visualizations, executive summaries, and ML insights, along with detailed CSV exports.
 - **Modular Design**: Each pipeline stage is encapsulated in its own engine class.
 - **Data Flow**: Linear progression with staged transformations.
