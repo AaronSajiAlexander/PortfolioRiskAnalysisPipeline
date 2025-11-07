@@ -1,0 +1,22 @@
+symbol,company_name,sector,current_price,market_cap,pe_ratio,dividend_yield,exchange,currency
+NVDA,NVIDIA Corporation,Technology,188.08,4579183821000,53.43,0.0002,NYSE,USD
+AAPL,Apple Inc.,Technology,269.77,3986216452000,36.11,0.0038,NYSE,USD
+MSFT,Microsoft Corporation,Technology,497.1,3694634992000,35.36,0.0067,NYSE,USD
+TSLA,Tesla Inc.,Consumer Discretionary,445.91,1483015979000,303.34,0.0,NYSE,USD
+WMT,Walmart Inc.,Consumer Staples,101.68,810679534000,38.37,0.0087,NYSE,USD
+V,Visa Inc.,Financial Services,336.96,651431051000,33.0,0.0072,NASDAQ,USD
+XOM,Exxon Mobil Corporation,Energy,114.5,482846507000,16.64,0.0348,NYSE,USD
+JNJ,Johnson & Johnson,Healthcare,186.97,450465923000,18.05,0.0273,NYSE,USD
+PG,Procter & Gamble Co.,Consumer Staples,146.13,341466874000,21.33,0.0283,NASDAQ,USD
+CRM,Salesforce Inc.,Technology,239.27,227785048000,34.73,0.0065,NASDAQ,USD
+SHOP,Shopify Inc.,Technology,156.05,203374313000,114.74,0.0,NASDAQ,USD
+UBER,Uber Technologies Inc.,Technology,92.12,191409750000,11.86,0.0,NYSE,USD
+BA,Boeing Co.,Industrial,196.5,149358756000,,0.0,NYSE,USD
+SBUX,Starbucks Corporation,Consumer Discretionary,82.22,93475914000,50.44,0.0294,NYSE,USD
+PYPL,PayPal Holdings Inc.,Financial Services,66.26,61996302000,13.31,0.0,NASDAQ,USD
+RIVN,Rivian Automotive Inc.,Consumer Discretionary,15.22,18658398000,,0.0,NYSE,USD
+SNAP,Snap Inc.,Technology,8.01,13772063000,,0.0,NASDAQ,USD
+GME,GameStop Corp.,Consumer Discretionary,21.35,9562851000,26.69,0.0,NYSE,USD
+AMC,AMC Entertainment Holdings,Consumer Discretionary,2.6,1333653000,,0.0,NASDAQ,USD
+SPCE,Virgin Galactic Holdings,Industrial,3.58,206176000,,0.0,NYSE,USD
+BLNK,Blink Charging Co.,Energy,1.51,172997000,,0.0,NYSE,USD
